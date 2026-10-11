@@ -1,25 +1,23 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package com.entity;
 
 import java.util.Date;
 
-public class HoaDonEntity {
-
+public class HoaDonEntity 
+{
     private String maHD, maKH, tenDN, maGH, tenKH, tenNV;
     private Date ngayLap;
     private int phanTramGG;
     private float gia, tongTien;
-    private int tichDiem=0;
+    private int tichDiem = 0;
     private float tienGiam, thanhTien;
 
-    public HoaDonEntity() {
+    public HoaDonEntity() 
+    {
     }
 
-    public HoaDonEntity(String maHD, String maKH, String tenDN, String maGH, String tenKH, String tenNV, Date ngayLap, int phanTramGG, float gia, float tongTien, int tichDiem, float tienGiam, float thanhTien) {
+    public HoaDonEntity(String maHD, String maKH, String tenDN, String maGH, String tenKH, String tenNV, Date ngayLap, int phanTramGG, float gia, float tongTien, int tichDiem, float tienGiam, float thanhTien) 
+    {
         this.maHD = maHD;
         this.maKH = maKH;
         this.tenDN = tenDN;
@@ -35,119 +33,138 @@ public class HoaDonEntity {
         this.thanhTien = thanhTien;
     }
 
-    public String getMaHD() {
+    public String getMaHD() 
+    {
         return maHD;
     }
 
-    public void setMaHD(String maHD) {
+    public void setMaHD(String maHD) 
+    {
         this.maHD = maHD;
     }
 
-    public String getMaKH() {
+    public String getMaKH() 
+    {
         return maKH;
     }
 
-    public void setMaKH(String maKH) {
+    public void setMaKH(String maKH) 
+    {
         this.maKH = maKH;
     }
 
-    public String getTenDN() {
+    public String getTenDN() 
+    {
         return tenDN;
     }
 
-    public void setTenDN(String tenDN) {
+    public void setTenDN(String tenDN) 
+    {
         this.tenDN = tenDN;
     }
 
-    public String getMaGH() {
+    public String getMaGH() 
+    {
         return maGH;
     }
 
-    public void setMaGH(String maGH) {
+    public void setMaGH(String maGH) 
+    {
         this.maGH = maGH;
     }
 
-    public String getTenKH() {
+    public String getTenKH() 
+    {
         return tenKH;
     }
 
-    public void setTenKH(String tenKH) {
+    public void setTenKH(String tenKH) 
+    {
         this.tenKH = tenKH;
     }
 
-    public String getTenNV() {
+    public String getTenNV() 
+    {
         return tenNV;
     }
 
-    public void setTenNV(String tenNV) {
+    public void setTenNV(String tenNV) 
+    {
         this.tenNV = tenNV;
     }
 
-    public Date getNgayLap() {
+    public Date getNgayLap() 
+    {
         return ngayLap;
     }
 
-    public void setNgayLap(Date ngayLap) {
+    public void setNgayLap(Date ngayLap) 
+    {
         this.ngayLap = ngayLap;
     }
 
-    public int getPhanTramGG() {
+    public int getPhanTramGG() 
+    {
         return phanTramGG;
     }
 
-    public void setPhanTramGG(int phanTramGG) {
+    public void setPhanTramGG(int phanTramGG) 
+    {
         this.phanTramGG = phanTramGG;
     }
 
-    public float getGia() {
+    public float getGia() 
+    {
         return gia;
     }
 
-    public void setGia(float gia) {
+    public void setGia(float gia) 
+    {
         this.gia = gia;
     }
 
-    public float getTongTien() {
+    public float getTongTien() 
+    {
         return tongTien;
     }
 
-    public void setTongTien(float tongTien) {
+    public void setTongTien(float tongTien) 
+    {
         this.tongTien = tongTien;
     }
 
-    public int getTichDiem() {
+    public int getTichDiem() 
+    {
         return tichDiem;
     }
 
-    public void setTichDiem(int tichDiem) {
+    public void setTichDiem(int tichDiem) 
+    {
         this.tichDiem = tichDiem;
     }
 
-    public float getThanhTien() {
-        return thanhTien = this.tongTien - this.tienGiam;
+    public float getTienGiam() 
+    {
+        float giamTheoPhanTram = this.tongTien * this.phanTramGG / 100.0f;
+        float giamTheoDiem = this.tichDiem * 1000.0f;
+        float tongGiam = giamTheoPhanTram + giamTheoDiem;
+        this.tienGiam = Math.min(tongGiam, Math.max(0, this.tongTien));
+        return this.tienGiam;
     }
 
-    public void setThanhTien(float thanhTien) {
-        this.thanhTien = thanhTien;
-    }
-
-    public float getTienGiam() {
-        if (this.phanTramGG == 0 && this.tichDiem == 0) {
-            return tienGiam;
-        } else {
-            if (this.tichDiem > 0 && this.phanTramGG > 0) {
-                tienGiam =  this.tongTien - this.tongTien * this.phanTramGG / 100 +  this.tichDiem * 1000;
-            } else if (this.tichDiem > 0) {
-                tienGiam = this.tichDiem * 1000;
-            } else if (this.phanTramGG > 0) {
-                tienGiam = this.tongTien - this.tongTien * this.phanTramGG / 100;
-            }
-            return tienGiam;
-        }
-    }
-
-    public void setTienGiam(float tienGiam) {
+    public void setTienGiam(float tienGiam) 
+    {
         this.tienGiam = tienGiam;
     }
 
+    public float getThanhTien() 
+    {
+        this.thanhTien = Math.max(0, this.tongTien - getTienGiam());
+        return this.thanhTien;
+    }
+
+    public void setThanhTien(float thanhTien) 
+    {
+        this.thanhTien = thanhTien;
+    }
 }
