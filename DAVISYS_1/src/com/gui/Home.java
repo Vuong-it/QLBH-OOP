@@ -64,6 +64,7 @@ import com.cart.ModelItem;
 import com.dao.ChucVuDAO;
 import com.dao.GioHangDAO;
 import com.dao.GioHangTamDAO;
+import com.dao.SetupCartDAO;
 import com.dao.HoaDonCTDAO;
 import com.dao.HoaDonDAO;
 import com.dao.ThongKeDAO;
@@ -101,6 +102,7 @@ import com.entity.ChucVuEntity;
 import com.entity.GioHangEntity;
 import com.entity.GioHangTamEntity;
 import com.entity.GioHangTempEntity;
+import com.service.SetupBuilderService;
 import com.entity.HoaDonCTEntity;
 import com.entity.HoaDonEntity;
 import com.file.FileExtensison;
@@ -196,6 +198,7 @@ public class Home extends javax.swing.JFrame implements Runnable, ThreadFactory 
     //tạo mảng chứa các phần tử menu
     Button[] arrBtn;
     private FormHome home;
+    private SetupBuilderPanel setupBuilderPanel;
     //màu hiển thị khi chọn menu
     Color chooserMenuItem = new Color(0, 153, 0);
     Color defaultMenuItem = Color.black;
@@ -254,6 +257,17 @@ public class Home extends javax.swing.JFrame implements Runnable, ThreadFactory 
 
     public Home() {
         initComponents();
+        setupBuilderPanel = new SetupBuilderPanel(new SetupBuilderService(), new SetupCartDAO(), new Runnable() {
+            public void run() {
+                String phone = ((com.gui.SetupBuilderPanel) setupBuilderPanel).getSelectedCustomerPhone();
+                if (phone != null && phone.equals(txtSdtKH.getText().trim())) {
+                    List<GioHangTamEntity> refreshed = GioHangtam.selectByIdlist(phone);
+                    listGHT = refreshed == null ? new ArrayList<GioHangTamEntity>() : refreshed;
+                    filltableGioHang();
+                }
+            }
+        });
+        cardTrangChu.add(setupBuilderPanel, "smartSetup");
         this.setIconImage(XImage.getAppIcon());
         setTextFileOpenSetting();
         setModeFrame();
@@ -303,6 +317,17 @@ public class Home extends javax.swing.JFrame implements Runnable, ThreadFactory 
 
     public Home(String tenDN) {
         initComponents();
+        setupBuilderPanel = new SetupBuilderPanel(new SetupBuilderService(), new SetupCartDAO(), new Runnable() {
+            public void run() {
+                String phone = setupBuilderPanel.getSelectedCustomerPhone();
+                if (phone != null && phone.equals(txtSdtKH.getText().trim())) {
+                    List<GioHangTamEntity> refreshed = GioHangtam.selectByIdlist(phone);
+                    listGHT = refreshed == null ? new ArrayList<GioHangTamEntity>() : refreshed;
+                    filltableGioHang();
+                }
+            }
+        });
+        cardTrangChu.add(setupBuilderPanel, "smartSetup");
         this.setIconImage(XImage.getAppIcon());
         setTextFileOpenSetting();
         setModeFrame();
@@ -412,6 +437,7 @@ public class Home extends javax.swing.JFrame implements Runnable, ThreadFactory 
                 .addChild(new DrawerItem("Hóa đơn").build())
                 .addChild(new DrawerItem("Giỏ hàng").build())
                 .addChild(new DrawerItem("Thống kê").build())
+                .addChild(new DrawerItem("Smart Setup Builder").build())
                 .addFooter(new Separator())
                 .addFooter(new DrawerItem("Cài đặt").build())
                 .addFooter(new DrawerItem("Giới thiệu").build())
@@ -540,6 +566,14 @@ public class Home extends javax.swing.JFrame implements Runnable, ThreadFactory 
                                 }
                                 break;
                             case 6:
+                                if (chose == -1 || chose != 9) {
+                                    hidePage();
+                                    hideMenu();
+                                    setupBuilderPanel.setVisible(true);
+                                    chose = 9;
+                                }
+                                break;
+                            case 7:
                                 //gọi dialog cài đặt
                                 //new CaiDat(new Home(), true).setVisible(true);
                                 if (chose == -1 || chose != 6) {
@@ -552,7 +586,7 @@ public class Home extends javax.swing.JFrame implements Runnable, ThreadFactory 
                                     chose = 6;
                                 }
                                 break;
-                            case 7:
+                            case 8:
                                 //gọi trang giới thiệu
                                 if (chose == -1 || chose != 7) {
                                     hidePage();
@@ -563,7 +597,7 @@ public class Home extends javax.swing.JFrame implements Runnable, ThreadFactory 
                                     chose = 7;
                                 }
                                 break;
-                            case 8:
+                            case 9:
                                 //gọi phương thức đăng xuất
                                 signOut();
                                 break;
@@ -983,7 +1017,7 @@ public class Home extends javax.swing.JFrame implements Runnable, ThreadFactory 
             cardSanPham, cardHangSanXuat, cardLoai,
             cardGioHang, cardHoaDon,
             cardKhachHang,
-            cardCaiDatGiaoDien, cardCaiDatDuongDan
+            cardCaiDatGiaoDien, cardCaiDatDuongDan, setupBuilderPanel
         };
         for (JPanel pn : this.arrPn) {
             pn.setVisible(false);
@@ -5283,6 +5317,7 @@ public class Home extends javax.swing.JFrame implements Runnable, ThreadFactory 
         btnGioiThieu = new com.swing.Button();
         btnDangXuat = new com.swing.Button();
         btnThongKe = new com.swing.Button();
+        btnSmartSetup = new com.swing.Button();
         opacity = new javax.swing.JLabel();
         pnTitle = new javax.swing.JPanel();
         jplState = new javax.swing.JPanel();
@@ -5950,6 +5985,14 @@ public class Home extends javax.swing.JFrame implements Runnable, ThreadFactory 
             }
         });
 
+        btnSmartSetup.setText("Smart Setup Builder");
+        btnSmartSetup.setEffectColor(new java.awt.Color(0, 153, 255));
+        btnSmartSetup.setFont(new java.awt.Font("Tahoma", 0, 14));
+        btnSmartSetup.setHorizontalAlignment(javax.swing.SwingConstants.LEADING);
+        btnSmartSetup.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) { btnSmartSetupActionPerformed(evt); }
+        });
+
         javax.swing.GroupLayout pnMenuLayout = new javax.swing.GroupLayout(pnMenu);
         pnMenu.setLayout(pnMenuLayout);
         pnMenuLayout.setHorizontalGroup(
@@ -5971,7 +6014,8 @@ public class Home extends javax.swing.JFrame implements Runnable, ThreadFactory 
                             .addComponent(btnSanPham, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 258, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(btnGioHang, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 258, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(btnHoaDon, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 258, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(btnThongKe, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 258, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(btnThongKe, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 258, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnSmartSetup, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 258, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap())
         );
         pnMenuLayout.setVerticalGroup(
@@ -5990,7 +6034,9 @@ public class Home extends javax.swing.JFrame implements Runnable, ThreadFactory 
                 .addComponent(btnGioHang, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(btnThongKe, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 85, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnSmartSetup, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 39, Short.MAX_VALUE)
                 .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnGioiThieu, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -10111,7 +10157,7 @@ public class Home extends javax.swing.JFrame implements Runnable, ThreadFactory 
     }
 
     void setDefaultItemMenu() {
-        this.arrBtn = new Button[]{btnTrangChu, btnTaiKhoan, btnSanPham, btnGioiThieu, btnGioHang, btnHoaDon};
+        this.arrBtn = new Button[]{btnTrangChu, btnTaiKhoan, btnSanPham, btnGioiThieu, btnGioHang, btnHoaDon, btnSmartSetup};
         for (Button btn : this.arrBtn) {
             nonHoverMenuItem(btn);
         }
@@ -10315,6 +10361,17 @@ public class Home extends javax.swing.JFrame implements Runnable, ThreadFactory 
         }
 
     }//GEN-LAST:event_btnThongKeActionPerformed
+
+    private void btnSmartSetupActionPerformed(java.awt.event.ActionEvent evt) {
+        chooserMainPage = false;
+        btnItemMenu = btnSmartSetup;
+        hidePage();
+        hideMenu();
+        setupBuilderPanel.setVisible(true);
+        setDefaultItemMenu();
+        hoverMenuItem(btnSmartSetup);
+        chose = 9;
+    }
 
     private void btnLastKHActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLastKHActionPerformed
         lastKhachHang();
@@ -13177,6 +13234,7 @@ public class Home extends javax.swing.JFrame implements Runnable, ThreadFactory 
     private com.swing.Button btnThemNV;
     private com.swing.Button btnThemSP;
     private com.swing.Button btnThongKe;
+    private com.swing.Button btnSmartSetup;
     private com.swing.Button btnTrangChu;
     private com.swing.Button btnXNKH;
     private com.swing.Button btnXacNhanDonHang;
