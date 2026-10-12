@@ -64,6 +64,7 @@ import com.cart.ModelItem;
 import com.dao.ChucVuDAO;
 import com.dao.GioHangDAO;
 import com.dao.GioHangTamDAO;
+import com.dao.SetupCartDAO;
 import com.dao.HoaDonCTDAO;
 import com.dao.HoaDonDAO;
 import com.dao.ThongKeDAO;
@@ -196,6 +197,7 @@ public class Home extends javax.swing.JFrame implements Runnable, ThreadFactory 
     //tạo mảng chứa các phần tử menu
     Button[] arrBtn;
     private FormHome home;
+    private SetupBuilderPanel setupBuilderPanel;
     //màu hiển thị khi chọn menu
     Color chooserMenuItem = new Color(0, 153, 0);
     Color defaultMenuItem = Color.black;
@@ -263,6 +265,7 @@ public class Home extends javax.swing.JFrame implements Runnable, ThreadFactory 
         ktTenDN = "dangth";
         loadMain(); //gọi component Loading khi đang chờ kết nối Database
         initMenu(); //gọi lại phương thức khởi tạo MENU
+        initSetupNavigation();
 
         initThongKe();
         lightModeTK();
@@ -312,6 +315,7 @@ public class Home extends javax.swing.JFrame implements Runnable, ThreadFactory 
         ktTenDN = tenDN;
         loadMain(); //gọi component Loading khi đang chờ kết nối Database
         initMenu(); //gọi lại phương thức khởi tạo MENU
+        initSetupNavigation();
 
         initThongKe();
         initNhanVien();
@@ -397,6 +401,56 @@ public class Home extends javax.swing.JFrame implements Runnable, ThreadFactory 
         loadThread.start();
     }
 
+    /** Runtime navigation keeps all NetBeans-generated code and Home.form unchanged. */
+    private void initSetupNavigation() {
+        javax.swing.JButton setupButton = new javax.swing.JButton("Smart Setup Builder");
+        setupButton.addActionListener(e -> showSetupBuilder());
+        cardMenubarTrangChu.add(setupButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(650, 10, 240, 30));
+    }
+
+    private void showSetupBuilder() {
+        if (setupBuilderPanel == null) {
+            setupBuilderPanel = new SetupBuilderPanel(new com.service.SetupBuilderFacade(),
+                    new SetupCartDAO(), ktTenDN, this::refreshSetupCartView);
+            cardTrangChu.add(setupBuilderPanel, "smartSetup");
+        }
+        chooserMainPage = false;
+        hidePage();
+        hideMenu();
+        ((java.awt.CardLayout) cardTrangChu.getLayout()).show(cardTrangChu, "smartSetup");
+        setupBuilderPanel.refreshOptions();
+        chose = 9;
+    }
+
+    private void refreshSetupCartView() {
+        final String phone = setupBuilderPanel.getSelectedCustomerPhone();
+        if (phone == null || !phone.equals(txtSdtKH.getText().trim())) return;
+        new javax.swing.SwingWorker<List<GioHangTamEntity>, Void>() {
+            @Override protected List<GioHangTamEntity> doInBackground() {
+                List<GioHangTamEntity> rows = GioHangtam.selectByIdlist(phone);
+                return rows == null ? new ArrayList<GioHangTamEntity>() : rows;
+            }
+            @Override protected void done() {
+                if (!phone.equals(txtSdtKH.getText().trim())) return;
+                try {
+                    listGHT = get();
+                    DefaultTableModel model = (DefaultTableModel) tblCart.getModel();
+                    model.setRowCount(0);
+                    long total = 0;
+                    for (GioHangTamEntity row : listGHT) {
+                        model.addRow(new Object[]{row.getMaSP(), row.getTenSP(), row.getGiaBan(), row.getSoLuong()});
+                        total = Math.addExact(total, Math.multiplyExact(
+                                com.service.SetupMoney.fromDatabase(row.getGiaBan()), row.getSoLuong()));
+                    }
+                    txtTongtiensp.setText(total + " VND");
+                    btnXacNhanDonHang.setEnabled(!listGHT.isEmpty());
+                } catch (Exception ex) {
+                    MsgBox.alert(Home.this, "Giỏ đã được ghi; không tải lại được màn hình. Hãy mở lại giỏ hàng.");
+                }
+            }
+        }.execute();
+    }
+
     void showLoadBar() {
     }
 
@@ -412,6 +466,7 @@ public class Home extends javax.swing.JFrame implements Runnable, ThreadFactory 
                 .addChild(new DrawerItem("Hóa đơn").build())
                 .addChild(new DrawerItem("Giỏ hàng").build())
                 .addChild(new DrawerItem("Thống kê").build())
+                .addChild(new DrawerItem("Smart Setup Builder").build())
                 .addFooter(new Separator())
                 .addFooter(new DrawerItem("Cài đặt").build())
                 .addFooter(new DrawerItem("Giới thiệu").build())
@@ -540,6 +595,9 @@ public class Home extends javax.swing.JFrame implements Runnable, ThreadFactory 
                                 }
                                 break;
                             case 6:
+                                showSetupBuilder();
+                                break;
+                            case 7:
                                 //gọi dialog cài đặt
                                 //new CaiDat(new Home(), true).setVisible(true);
                                 if (chose == -1 || chose != 6) {
@@ -552,7 +610,7 @@ public class Home extends javax.swing.JFrame implements Runnable, ThreadFactory 
                                     chose = 6;
                                 }
                                 break;
-                            case 7:
+                            case 8:
                                 //gọi trang giới thiệu
                                 if (chose == -1 || chose != 7) {
                                     hidePage();
@@ -563,7 +621,7 @@ public class Home extends javax.swing.JFrame implements Runnable, ThreadFactory 
                                     chose = 7;
                                 }
                                 break;
-                            case 8:
+                            case 9:
                                 //gọi phương thức đăng xuất
                                 signOut();
                                 break;
@@ -975,6 +1033,7 @@ public class Home extends javax.swing.JFrame implements Runnable, ThreadFactory 
 
     //phương thức ẩn các trang
     public void hidePage() {
+        if (setupBuilderPanel != null) setupBuilderPanel.setVisible(false);
         this.arrPn = new JPanel[]{
             cardTrangChuTongQuan,
             cardThongKeDoanhThu, cardThongKeSanPham,

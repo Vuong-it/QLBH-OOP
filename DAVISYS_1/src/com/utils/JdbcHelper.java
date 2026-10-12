@@ -20,8 +20,16 @@ public class JdbcHelper {
         }
     }
     
+    /** Shared connection boundary; optional JVM properties also apply to legacy DAOs. */
+    public static Connection openConnection() throws SQLException {
+        return DriverManager.getConnection(
+                System.getProperty("davisy.jdbc.url", dburl),
+                System.getProperty("davisy.jdbc.user", user),
+                System.getProperty("davisy.jdbc.password", pass));
+    }
+
     public static PreparedStatement getStmt(String sql, Object...args) throws SQLException{
-        Connection connection = DriverManager.getConnection(dburl, user, pass);
+        Connection connection = openConnection();
         PreparedStatement pstmt = null;
         if(sql.trim().startsWith("{")){
            pstmt = connection.prepareCall(sql);
