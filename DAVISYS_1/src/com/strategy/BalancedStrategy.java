@@ -3,7 +3,7 @@ package com.strategy;
 import com.entity.SetupCombo;
 
 /** Can bang: 70% do phu hop va 30% muc tiet kiem so voi ngan sach. */
-public final class BalancedStrategy extends ComboStrategy {
+public class BalancedStrategy implements ComboStrategy {
     @Override
     public double calculateScore(SetupCombo combo, long budget) {
         if (budget <= 0) throw new IllegalArgumentException("budget phai > 0");
