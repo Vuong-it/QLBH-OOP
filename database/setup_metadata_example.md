@@ -16,5 +16,8 @@ Ngưỡng mục đích là 70/100. Điểm được quy đổi sang thang 1–5 
 
 Schema gốc `DAVISYS.sql` có `MOTA nvarchar(100)`; schema SQL Server 2022 ở nhánh database dùng `nvarchar(2000)`.
 Migration `migrations/001_setup_description_capacity.sql` chỉ mở rộng cột khi cần, không xóa/seed/cập nhật sản phẩm.
-Sao lưu, chạy trên DB thử nghiệm, kiểm tra dữ liệu rồi mới quyết định áp dụng thủ công. Codex không chạy script này.
+Sao lưu, chạy trên DB thử nghiệm, kiểm tra dữ liệu rồi mới quyết định áp dụng thủ công. Không chạy tự động trên database nguồn; kiểm chứng SQL Server trước đây nằm trong docs/phong-sql-verification.md.
 Không dùng script cài mới để cập nhật một DB hiện hữu; bản cài mới SQLServer2022 của nhánh database có seed và các bảng đánh giá phụ không được DAO này sử dụng.
+
+
+Bộ demo bàn giao SB60 có đủ catalog và metadata đã kiểm tra parser; xem [hướng dẫn gói demo](demo/README.md). Điểm/phong cách của bộ này là giả định trình diễn, không phải thông số sản phẩm được xác thực.
