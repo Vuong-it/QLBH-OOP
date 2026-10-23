@@ -60,7 +60,7 @@ Bằng chứng XML: `DAVISYS_1/build-integration/test/results/TEST-*.xml`. Outpu
 - Cài đặt, Giới thiệu, quay về Home, vào lại Builder bằng drawer: PASS. Chỉ mở trang Cài đặt, không thay cấu hình.
 - Đăng xuất: PASS, đã xác nhận và quan sát màn hình Login hiện lại.
 
-GUI đã chạy trên bản checkout/transaction mới; các tinh chỉnh cuối về cached cart context và từ chối float rounding được compile và chạy đầy đủ test sau đó. Không coi đây là kiểm thử toàn bộ chức năng CRUD của ứng dụng.
+Sau bộ 71 test, đã reset riêng fixture và mở lại ứng dụng từ đúng build cuối chứa cached cart context và guard float. Login → giỏ hàng cũ → nhập 0900000001 → thêm thủ công SB0001 và SB0008 qua thẻ sản phẩm → tổng 350.000 → xác nhận: PASS. SQL ghi HD01 đúng QA1/GH-SETUP-1, đủ 2 detail SL=1, giỏ rỗng, không có lỗi trong stderr. Như vậy cả Builder và bán hàng thủ công đều được kiểm chứng; không coi đây là kiểm thử toàn bộ CRUD của ứng dụng.
 
 ## Cô lập dữ liệu và bảo toàn checkout gốc
 
