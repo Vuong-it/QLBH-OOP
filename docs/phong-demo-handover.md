@@ -4,14 +4,14 @@ Bộ bàn giao hoàn chỉnh nằm tại [database/demo/README.md](../database/d
 
 ## Các điểm đã chốt
 
-- Hãng: 30 sản phẩm có nhãn theo ảnh/bảng đối chiếu được giữ. 30 sản phẩm chưa đủ căn cứ dùng MAHANG=DEMO, TENHANG=Chưa xác định (demo); không đồng nghĩa hàng không có thương hiệu, không tự đoán hãng.
+- Hãng: 30 sản phẩm có hãng xác định được giữ nguyên. 30 sản phẩm còn lại đã được gán 12 tên hãng do nhóm tự đặt theo yêu cầu ngày 24/10/2026, có hậu tố (demo). Xem database/demo/fictional_brands.md để phân biệt hãng giả lập với hãng xác định từ ảnh.
 - Loại: 12 nhóm, mỗi nhóm 5; SB0011–SB0015 đều là TN. SB0012 giữ LG/LOGITECH và TN.
 - SB0004: bỏ TKL vì ảnh có cụm phím số; tên mới Bàn phím Gaming có cụm phím số. Không kết luận loại switch từ ảnh.
 - SB0012: sửa đặc điểm USB-A thành đầu cắm 3,5 mm theo ảnh Logitech H111; giữ điểm demo của nhóm. Không đổi giá/tồn kho snapshot.
 - SB0048: đã xem ảnh lớn, đầu USB-C và cổng HDMI phù hợp tên; giữ nguyên. Không suy ra độ phân giải/khả năng tương thích khi chưa có model/thông số.
 - Metadata: cả 60 dòng có đủ 5 điểm mục đích và ít nhất 1 trong 4 phong cách, đọc được bằng SetupFilterDAO. Điểm/phong cách là giả định trình diễn của nhóm, không phải chứng nhận chất lượng/thông số hãng. Đặc điểm nguồn được ghi rõ cần xác minh thông số.
 
-Các mã chưa rõ hãng: SB0003, SB0004, SB0005, SB0007, SB0008, SB0011, SB0014, SB0015, SB0018, SB0019, SB0020, SB0021, SB0022, SB0023, SB0024, SB0025, SB0027, SB0028, SB0029, SB0030, SB0031, SB0037, SB0043, SB0050, SB0051, SB0052, SB0053, SB0054, SB0055, SB0056.
+Các mã đã gán hãng giả lập (trước đây chưa rõ hãng): SB0003, SB0004, SB0005, SB0007, SB0008, SB0011, SB0014, SB0015, SB0018, SB0019, SB0020, SB0021, SB0022, SB0023, SB0024, SB0025, SB0027, SB0028, SB0029, SB0030, SB0031, SB0037, SB0043, SB0050, SB0051, SB0052, SB0053, SB0054, SB0055, SB0056.
 
 ## Phân biệt database demo và fixture
 
@@ -41,8 +41,12 @@ Số sản phẩm còn hàng, điểm mục đích >=70, khớp phong cách theo
 ## Kiểm chứng đã thực hiện
 
 - Biên dịch main mới nhất bằng JDK 17: PASS.
-- DemoCatalogTest: PASS; kiểm tra đủ 60 mã liên tục, 60 ảnh, 12×5 nhóm, 30 hãng chưa rõ, 3 món hết hàng; 300 điểm mục đích và phong cách đọc qua parser thật; SB0004/SB0012 đúng quyết định.
-- SQL Server 2025: dựng mới thành công, InsertedProducts=60, UpdatedProducts=0; đủ 13 thủ tục và giỏ/tài khoản demo.
-- Bộ kiểm chứng cập nhật: 7/7 PASS. Preview không ghi; cố ý đưa SB0004/SB0012 về mô tả cũ trong DB demo rồi apply sửa đúng 2 dòng; repeat 0 dòng; tên hãng xung đột bị từ chối; giữ 30 hãng chưa rõ và 3 món hết hàng; nguồn DAVISYS không đổi.
+- DemoCatalogTest: PASS; kiểm tra đủ 60 mã liên tục, 60 ảnh, 12×5 nhóm, 30 sản phẩm thuộc hãng giả lập và không còn mã DEMO, 3 món hết hàng; 300 điểm mục đích và phong cách đọc qua parser thật; SB0004/SB0012 đúng quyết định.
+- SQL Server 2025 (bản 23/10, trước lần bổ sung hãng giả lập): dựng mới thành công, InsertedProducts=60, UpdatedProducts=0; đủ 13 thủ tục và giỏ/tài khoản demo.
+- Bộ kiểm chứng cập nhật của bản 23/10: 7/7 PASS. Preview không ghi; cố ý đưa SB0004/SB0012 về mô tả cũ trong DB demo rồi apply sửa đúng 2 dòng; repeat 0 dòng; tên hãng xung đột bị từ chối; giữ 30 sản phẩm lúc đó chưa rõ hãng và 3 món hết hàng; nguồn DAVISYS không đổi.
 - Đã xem trực quan cả 60 ảnh, xem riêng ảnh lớn SB0013 và SB0048, đối chiếu SB0012. Đây là đối chiếu nhãn/nhóm hình, không xác thực hàng hóa thật.
 - Chưa chạy lại Login/Home end-to-end bằng bộ SB60 mới trong lần này; phần nghiệm thu GUI/checkout của Vương trên main có báo cáo riêng.
+
+## Bổ sung hãng ngày 24/10/2026
+
+Đã gán 12 hãng giả lập cho đúng 30 dòng còn thiếu, giữ nguyên hãng của 30 dòng đã xác định. Cả 60 dòng hiện có hãng cụ thể; tên tự đặt đều có hậu tố (demo). Catalog, bảng quyết định và cả ba SQL dựng/cập nhật/kiểm tra đã đồng bộ. SQL thực tế 7/7 ở trên là kết quả bản trước; thay đổi tên hãng lần này được kiểm tra bằng đối chiếu dữ liệu/SQL và DemoCatalogTest, chưa chạy lại trên SQL Server. Muốn áp dụng vào database demo riêng đã dựng, chạy script 03 ở preview rồi @Apply=1.
