@@ -6,7 +6,7 @@ Trạng thái: **build và các kiểm chứng dưới đây PASS trên database
 ## Bản tích hợp và phạm vi
 
 - PR #1: https://github.com/Vuong-it/QLBH-OOP/pull/1, nhánh đích `integration/setup-builder`, điểm bắt đầu `9b0d53860798af929944263987d247089257679c`.
-- Tích hợp PR #4 tại `2081bfc0daca7b528326047f9c8e683728aa400a` bằng merge có giữ lịch sử đóng góp; không merge PR #3 riêng.
+- Tích hợp code PR #4 tại `2081bfc0daca7b528326047f9c8e683728aa400a`, sau đó nhận commit mới nhất `5ade91192c15afbfb3abe6c1ade731f9b0cdd79e` bổ sung script/báo cáo kiểm chứng SQL; giữ lịch sử đóng góp và không merge PR #3 riêng.
 - Base main kiểm tra: `bd77a75fd80fe6a2ef3fd06ffa77faa8908c6562`. Không merge vào main trong bước này.
 - Hai conflict add/add được xử lý: giữ `SetupFilterDAO` sử dụng `JdbcHelper::openConnection`; giữ cả test mapping DAO độc lập của #4 và test Facade của #1. DTO/parser/fixture/migration chung chỉ có một bản.
 - Nhận 60 ảnh và SQL/CSV/tài liệu demo từ #4. Script demo vẫn mặc định preview; không tự chạy vào database đang dùng.
@@ -58,7 +58,7 @@ Bằng chứng XML: `DAVISYS_1/build-integration/test/results/TEST-*.xml`. Outpu
 - Xác nhận đơn hàng: SQL ghi HD01 đúng TENDN=qa_setup, MAKH=QA1, MAGH=GH-SETUP-1, tổng/thành tiền 470.000; 3 detail đúng mã/giá/SL; giỏ rỗng; tồn kho của 3 món 20→19; điểm khách 0→4.
 - Drawer → Hóa đơn → mở chi tiết: hiển thị đủ 3 món, đúng khách/nhân viên/ảnh sản phẩm.
 - Cài đặt, Giới thiệu, quay về Home, vào lại Builder bằng drawer: PASS. Chỉ mở trang Cài đặt, không thay cấu hình.
-- Đăng xuất: đã bấm xác nhận bằng tài khoản thử nghiệm; kiểm tra Login sau đăng xuất ở cuối phiên.
+- Đăng xuất: PASS, đã xác nhận và quan sát màn hình Login hiện lại.
 
 GUI đã chạy trên bản checkout/transaction mới; các tinh chỉnh cuối về cached cart context và từ chối float rounding được compile và chạy đầy đủ test sau đó. Không coi đây là kiểm thử toàn bộ chức năng CRUD của ứng dụng.
 
@@ -69,6 +69,10 @@ GUI đã chạy trên bản checkout/transaction mới; các tinh chỉnh cuối
 - Hash toàn bộ HANG/LOAIHANG/SANPHAM trong DAVISYS gốc vẫn bằng baseline trước review: `9C923EE0399C78BBD4DBF2418E6E2B725A55189071E0558B98A3D42B154A972C`.
 - Checkout gốc `D:\BTL\OOP_Java\DAVISY-main` vẫn giữ nguyên 5 file local chưa commit; không checkout/reset/stash chúng. Công việc thực hiện tại worktree riêng được gắn với chat.
 - Không commit build/dist, cấu hình NetBeans hoặc credentials thật. Không gửi comment, review hay tin nhắn dưới danh nghĩa người khác.
+
+## Bằng chứng SQL bổ sung từ Phong
+
+Trong lúc chuẩn bị push, #4 được cập nhật lên 5ade911. Ba file mới/thay đổi chỉ là `database/verification/verify_demo_isolated.sql`, `docs/phong-main-pr.md` và `docs/phong-sql-verification.md`; Java và hai SQL demo/migration dùng trong ứng dụng không đổi. Đã đọc và nhận bổ sung này. Theo báo cáo của Phong, 11/11 kịch bản SQL PASS trên SQL Server 2025 với bản sao 71 sản phẩm (60 SB) trên máy Phong. Đây là bằng chứng được Phong ghi nhận, không phải lần thực thi của Vương trên máy này; 12 test SQL và luồng GUI của bản tích hợp nêu trên được chạy độc lập ở database review riêng. Không chạy script verification mới vì nó dành cho dataset của Phong và có tên sandbox cố định.
 
 ## Tái hiện test SQL
 
