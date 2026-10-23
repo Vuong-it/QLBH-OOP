@@ -40,6 +40,10 @@ javac -encoding UTF-8 --release 17 -cp "library/*;$validation/classes" -d "$vali
 java -cp "library/*;$validation/classes" org.junit.runner.JUnitCore com.dao.SetupFilterDAOTest com.dao.DescriptionFilterTest
 ```
 
-## Cần hoàn thành trước khi approve
+## Cập nhật kiểm chứng SQL Server
+
+Đã kết nối SSMS và kiểm chứng thực tế trên SQL Server 2025: 11/11 kịch bản PASS trong database riêng. Hai script demo đã qua preview/apply/repeat; migration đã qua mở rộng/chạy lặp/giữ cột lớn; thêm ca lỗi trùng mã hãng và xác nhận DAVISYS nguồn giữ nguyên. Xem [báo cáo SQL](phong-sql-verification.md) và `database/verification/verify_demo_isolated.sql`. Các ghi chú chưa kết nối ở phần trên là trạng thái lịch sử trước lần kiểm chứng bổ sung này.
+
+## Yêu cầu kiểm chứng ban đầu (đã hoàn thành cho phần SQL demo/migration)
 
 Trên database thử nghiệm có sản phẩm demo: chạy preview, apply rồi apply lại cả hai script. Lưu số dòng và dữ liệu trước/sau; xác nhận không ghi đè hãng đã chỉnh, SB0012 thuộc TN, lần chạy lại không đổi dữ liệu. Chạy migration hai lần, đối chiếu kiểu/nullability/dung lượng MOTA và nội dung mô tả. Kiểm thử sâu transaction/rollback của SetupCartDAO vẫn theo phân công của Vương.
