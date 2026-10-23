@@ -35,6 +35,14 @@ public class SetupFilterDAOTest {
         assertEquals(300, combo.getTongTien()); assertEquals(2, combo.getProducts().size());
         assertEquals(1, products.get(1).getDiemPhuHop());
     }
+    @Test public void mapsMultipleRowsWithoutContamination() {
+        var products = new SetupFilterDAO(data()::open).getProducts(null, null);
+        assertEquals("A", products.get(0).getMaSP());
+        assertEquals("BP", products.get(0).getMaLH());
+        assertEquals("B", products.get(1).getMaSP());
+        assertEquals("TN", products.get(1).getMaLH());
+        assertEquals(20, products.get(1).getSoLuong());
+    }
     @Test(expected=IllegalStateException.class) public void nullPriceCannotBeReadAsZero() {
         FakeSetupDatabase db = data(); db.products.get(0).put("GIABAN", null); new SetupFilterDAO(db::open).getProducts(null, null);
     }

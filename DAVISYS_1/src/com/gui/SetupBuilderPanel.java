@@ -73,6 +73,14 @@ public class SetupBuilderPanel extends JPanel {
         setBusy(false);
     }
 
+    public CartContext getSelectedCart() {
+        return (CartContext) customerBox.getSelectedItem();
+    }
+
+    public String getSelectedCartId() {
+        CartContext cart = (CartContext) customerBox.getSelectedItem();
+        return cart == null ? null : cart.cartId;
+    }
     public String getSelectedCustomerPhone() {
         CartContext cart = (CartContext) customerBox.getSelectedItem();
         return cart == null ? null : cart.phone;

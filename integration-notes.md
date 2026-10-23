@@ -1,106 +1,95 @@
-# Báo cáo tích hợp Smart Setup Builder
+# Báo cáo tích hợp Smart Setup Builder — #1 + #4
 
-## A. Trạng thái thực hiện
+Ngày kiểm chứng: 23/10/2026 (Asia/Bangkok).
+Trạng thái: **build và các kiểm chứng dưới đây PASS trên database thử nghiệm; chờ review/Approve trước merge main.**
 
-**PARTIAL — mã tích hợp, build JAR và kiểm thử tự động đã hoàn tất; còn xác minh trên SQL Server/GUI toàn ứng dụng.**
+## Bản tích hợp và phạm vi
 
-- Repository: https://github.com/Vuong-it/QLBH-OOP
-- Thư mục gốc được bảo toàn: `D:\BTL\OOP_Java\DAVISY-main`.
-- Worktree: `C:\Users\Admin\.codex\worktrees\setup-builder-integration\DAVISY-main`.
-- Nhánh local: `integration/setup-builder`.
-- Base/đích: `origin/main` = `bd77a75fd80fe6a2ef3fd06ffa77faa8908c6562`.
-- HEAD cuối cùng: commit chứa báo cáo này; dùng `git rev-parse HEAD` trong worktree để lấy SHA.
-- Không sửa `main`, không push, không tạo PR, không chạy ứng dụng kết nối hay ghi DB thật.
-- Ba tệp đã sửa ở checkout gốc còn nguyên nội dung; SHA256 trước/sau khớp:
-  - `DAVISYS_1/nbproject/build-impl.xml`: `69AC3C07AE8C5FB8C837C4BD2C0C5B852655C50D33112D663F00279F828FCAD4`.
-  - `DAVISYS_1/nbproject/genfiles.properties`: `9E8EBB9E7064220E8DD976D7D17B261622D3DE02C3A0BF3B682705FBB5592D32`.
-  - `DAVISYS_1/src/com/utils/JdbcHelper.java`: `7669918716C0D501C114187515D83BAF094B763794633B521E5B84E1FC1A2204`.
+- PR #1: https://github.com/Vuong-it/QLBH-OOP/pull/1, nhánh đích `integration/setup-builder`, điểm bắt đầu `9b0d53860798af929944263987d247089257679c`.
+- Tích hợp PR #4 tại `2081bfc0daca7b528326047f9c8e683728aa400a` bằng merge có giữ lịch sử đóng góp; không merge PR #3 riêng.
+- Base main kiểm tra: `bd77a75fd80fe6a2ef3fd06ffa77faa8908c6562`. Không merge vào main trong bước này.
+- Hai conflict add/add được xử lý: giữ `SetupFilterDAO` sử dụng `JdbcHelper::openConnection`; giữ cả test mapping DAO độc lập của #4 và test Facade của #1. DTO/parser/fixture/migration chung chỉ có một bản.
+- Nhận 60 ảnh và SQL/CSV/tài liệu demo từ #4. Script demo vẫn mặc định preview; không tự chạy vào database đang dùng.
+- `JdbcHelper.openConnection` của #1 tiếp tục là boundary chung cho DAO cũ/mới, hỗ trợ JVM properties `davisy.jdbc.url/user/password`. Không lấy cấu hình/mật khẩu local vào Git.
 
-## B. Nguồn gốc 4 nhánh và quyết định
+## Lỗi checkout phát hiện và sửa
 
-| Nguồn | SHA đã xem | Nội dung tích hợp | Nội dung không lấy và lý do | Lịch sử / xử lý |
-|---|---|---|---|---|
-| `feature/giao-dien` | `9d893378a33fdef10ec3f992885d02ed0de1a3af` | Tiêu chí ngân sách/mục đích/phong cách, tông màu, bảng đề xuất, tổng/còn dư, đổi phụ kiện trong budget | `SetupBuilder` là JFrame rỗng; `SetupBuildercode` có logic sinh riêng/ngẫu nhiên và cart chỉ thông báo. Chuyển phần UI hữu ích vào panel dùng chung, không thêm cửa sổ cạnh tranh | Không chung ancestor với main; port hành vi/layout có chọn lọc |
-| `feature/setup-algorithm` | `3d795674006b23aabb5d38b9f8251fdce40b5733` | Model bất biến, service backtracking, 3 strategy, replacement, signature và scenario kiểm thử | Không lấy bản cũ `SanPhamDAO`/`HoaDonEntity`; chuyển main test từ `src/com/test` sang JUnit trong `test` | Merge base `2a23b31974ca2514908bf8e452f449bc63b5f0e9`; port file, bổ sung kiểm tra dữ liệu/overflow/determinism |
-| `feature/setup-database` | `547b519b716c1b97217cda46b57773a95c4473aa` | `SetupFilterDAO`, `SetupFilterProduct`, parser/normalizer, tiêu chí/điểm từ MOTA, kiểm thử mô tả và DAO | Không nhập lại DAO/entity cũ, `.gitignore` cũ hoặc toàn script cài mới/seed. Các bảng đánh giá phụ trong script không được DAO này dùng. Tách migration mở rộng MOTA và mẫu metadata | Không chung ancestor; port file và điều chỉnh adapter kết nối |
-| `feature/setup-integration` | `59d871792439de91c83772d1039019a0829aa826` | Panel nhúng Home, điều hướng, persistence trên GIOHANG/GIOHANGTAM, refresh sau commit, validation | Không lấy models mutable, thuật toán greedy tạm, thay đổi generated Home.java không đồng bộ `.form`, giả định mọi MAGH là số điện thoại | Merge base là main hiện tại; port adapter và hunk ngoài generated code |
+Luồng cũ dùng `listGHT` dùng chung cho nhiều giỏ, lấy dòng 0 khi tạo header/detail, tải lại toàn bộ giỏ giữa vòng lặp; có thể ghi sai khách/sản phẩm khi mua nhiều món. Header, detail, trừ kho, xóa giỏ và cộng điểm dùng các connection autocommit riêng. Mã hóa đơn lấy COUNT+1 có thể trùng sau khi xóa dữ liệu. Màn hình bán hàng còn giả định MAGH=số điện thoại và tính tổng bằng int.
 
-Không thực hiện merge lịch sử unrelated, chọn ours/theirs nguyên cây hay nhập code cũ đè main.
+Bản này thay đường checkout bằng `CheckoutDAO`:
 
-Ma trận điểm gọi cuối:
+- Một transaction cho xác thực đúng MAGH/MAKH/tài khoản đang hoạt động, đọc/khóa giỏ và tồn kho, kiểm tra tổng hiển thị, ghi header và từng detail, trừ kho, xóa đúng giỏ và cộng điểm. Bất kỳ lỗi nào đều rollback toàn bộ.
+- Snapshot từng dòng của đúng giỏ; không đọc lại list Swing dùng chung giữa vòng lặp. Lưu đúng ngày nhập và dữ liệu sản phẩm hiện tại vào chi tiết hóa đơn.
+- ID dựa trên MAX phần số, khóa bảng khi cấp ID trong transaction, không dựa trên số dòng.
+- Màn hình bán hàng đọc/thêm/sửa/xóa theo mã giỏ thực và tài khoản. Nếu cùng số điện thoại có nhiều giỏ, ưu tiên giỏ đã chọn ở Builder; nếu không xác định được duy nhất thì không cho checkout nhầm.
+- Tổng màn hình dùng checked long. Các cột/reader hóa đơn cũ vẫn dùng FLOAT/float: từ chối giá/tổng không biểu diễn chính xác ở boundary này thay vì âm thầm làm tròn. Test có tổng 3.000.000.000 VNĐ và giá 16.777.217 VNĐ không thể biểu diễn đúng bằng float.
+- Checkout chạy trong SwingWorker, lấy context đã hiển thị và xác thực lại trong transaction; callback refresh kiểm tra cả số điện thoại và mã giỏ để không nhận kết quả tải cũ.
+- Bỏ đường insertCTHD cũ có thể ghi dở dang. Không thay Home.form hoặc block initComponents do NetBeans sinh.
 
-| Chức năng | Nguồn chính | Điểm gọi thực tế | Quyết định |
-|---|---|---|---|
-| Mở/đóng/refresh UI | GUI + integration | Home → `showSetupBuilder`, `hidePage`, `refreshSetupCartView` | Một panel tạo lazily; nút trên trang Tổng quan và mục drawer |
-| Lọc/metadata/schema | database | Facade → FilterDAO → Mapper | Null tiêu chí nghĩa là bỏ lọc rõ ràng; bật tiêu chí thì metadata phải khớp |
-| Sinh/rank/đổi combo | algorithm | Panel → Facade → Service → Strategies | Một lõi không cần SQL/Swing, 0–3 combo khác nhau |
-| Khách hàng/cart/transaction | integration | Panel → CartDAO → GIOHANG/GIOHANGTAM | MAGH thật, MAKH, tài khoản đang hoạt động; một transaction cho tất cả dòng |
+## Build và kiểm thử tự động
 
-## C. Kiến trúc cuối cùng
+JDK Temurin 21.0.12, source/target 17; Ant 1.10.17 của NetBeans. Build JAR thành công. **71 tests PASS, 0 failures, 0 errors, 0 skipped** trong lần chạy cuối có bật SQL integration.
 
-`Home → SetupBuilderPanel → SetupBuilderFacade → SetupFilterDAO/SetupProductMapper → SetupBuilderService/strategies → chọn combo → SetupCartDAO → commit → refresh UI`.
+| Bộ test | Số test | Kết quả |
+|---|---:|---|
+| SetupBuilderServiceTest | 26 | PASS |
+| SetupMoneyTest | 9 | PASS |
+| SetupFilterDAOTest (DAO + Facade) | 7 | PASS |
+| DescriptionFilterTest | 5 | PASS |
+| SetupCartDAOTest (fixture JDBC) | 10 | PASS |
+| SetupBuilderPanelTest | 1 | PASS |
+| HoaDonRegressionTest | 1 | PASS |
+| SetupSqlServerIntegrationTest (SQL Server thật) | 12 | PASS |
 
-- `SetupProduct`: một FQN, immutable, `long giaBan` VNĐ nguyên, điểm 1–5. Mã sản phẩm giữ nguyên hoa/thường khi truy vấn DB; mã nhóm chuẩn hóa Locale.ROOT. **`getSoLuong()` là tồn kho**, theo API nhánh algorithm. Mỗi dòng của combo mua **1 đơn vị**; UI thể hiện SL mua = 1, DAO không lấy tồn kho làm số lượng mua.
-- `SetupCombo`: danh sách immutable, mỗi nhóm/mã một sản phẩm, tổng tiền/điểm được tính từ snapshot. `Math.addExact` kiểm tra overflow. Signature escape ký tự phân cách. Không có setters làm tổng bị stale.
-- `SetupBuilderService`: chỉ thuật toán; budget dương, nhóm không trùng/rỗng, loại hàng thiếu hoặc budget thiếu trả danh sách rỗng. Loại hết hàng, deduplicate dữ liệu nhất quán, từ chối trùng mã mâu thuẫn. Tie-break có signature; Budget so sánh `long` chính xác. Trên 100.000 tổ hợp tiềm năng sẽ yêu cầu thu hẹp tiêu chí thay vì rank trên một mẫu không đầy đủ.
-- Strategies giữ semantics nguồn: giá thấp nhất; cân bằng 70% fit + 30% tiết kiệm; tổng điểm cao nhất. Combo đã chọn không được đề xuất lại ở strategy sau.
-- Facade/mapper tách SQL khỏi algorithm. SQL `FLOAT` chỉ chuyển sang long khi finite, dương, không lẻ VNĐ và trong miền integer double chính xác; không làm tròn giá. Điểm metadata /100 quy đổi gần nhất sang /5, nửa làm tròn lên; điểm gốc nằm trong lý do.
-- Bộ lọc hỗ trợ năm mục đích và bốn phong cách. Không có metadata vẫn dùng được **Không lọc**; khi bật tiêu chí, không đoán fit từ tên/đặc điểm. Parser loại điểm lỗi, nhãn phủ định và metadata mơ hồ/trùng.
-- UI kế thừa tiêu chí/layout/theme hữu ích của GUI branch. DB và sinh combo chạy trong `SwingWorker`; render, chọn và callback trên EDT. Đổi phụ kiện cùng loại, theo bộ lọc snapshot và budget. Thay đổi tiêu chí làm mất hiệu lực combo cũ. Sau commit xóa lựa chọn, tránh bấm thêm lặp vô ý.
-- Cart DAO đọc danh sách giỏ thật của tài khoản đăng nhập. Trước khi ghi kiểm tra lại MAGH/MAKH/TENDN và tài khoản hoạt động, sản phẩm tồn tại, giá hiện tại, stock, số lượng hiện có; giá thay đổi yêu cầu tạo lại combo. Các mã lặp trong input DAO gộp thành số đơn vị tương ứng. Sắp xếp khóa sản phẩm; `UPDLOCK,HOLDLOCK` trên cart, sản phẩm và dòng cart; rollback khi bất kỳ dòng nào lỗi. Connection/statement/result set đóng đúng ownership.
-- `JdbcHelper.openConnection()` là boundary chung, giữ cấu hình có sẵn và cho phép override JVM `davisy.jdbc.url/user/password`; không thêm host/mật khẩu hard-code mới. Ba tệp cấu hình/secret đã sửa ở thư mục gốc không bị chép sang worktree.
-- Schema SANPHAM của hai script đã đối chiếu không có trạng thái ngừng bán riêng. Hàng đã xóa hoặc stock <= 0 bị loại/từ chối. Cart giữ semantics cũ: không giữ/trừ tồn kho toàn cửa hàng khi thêm giỏ; cần kiểm tra lại lúc thanh toán.
-- `SanPhamDAO`, `HoaDonEntity`, `Home.form`, generated block của Home và cấu hình NetBeans của main được bảo toàn. Refresh đọc giỏ hiện tại theo số điện thoại như flow cũ, không chuyển khách hàng đang xem.
+12 test SQL Server: sinh/đổi combo và thêm đúng giỏ với SL=1; thay giá sau sinh; stock=0 sau sinh; xóa sản phẩm sau sinh; lỗi dòng giỏ thứ hai rollback dòng đầu; hai thread/kết nối thêm đồng thời giữ đủ SL=2 cho cả 3 dòng; checkout 3 món giữ nguyên giỏ khách khác; lỗi detail thứ hai rollback cả header/detail/kho/giỏ/điểm; từ chối tổng đổi hoặc owner sai; stock đổi trước checkout không ghi dở dang; cấp ID khi có khoảng trống và giữ chính xác tổng lớn hơn int; từ chối làm tròn float.
 
-Tệp trong phạm vi: models `SetupProduct/SetupCombo/SetupFilterProduct`; DAOs `SetupFilterDAO/SetupCartDAO`; service `SetupBuilderService/SetupBuilderFacade/SetupProductMapper/SetupMoney`; bốn strategy; panel; hunk Home/JdbcHelper; 7 lớp JUnit và fixture JDBC; migration, ví dụ metadata, `.gitignore`, báo cáo này.
+Bằng chứng XML: `DAVISYS_1/build-integration/test/results/TEST-*.xml`. Output build/test không commit.
 
-## D. Bằng chứng kiểm chứng
+## Kiểm chứng GUI và đối chiếu SQL
 
-Máy có JDK Temurin **21.0.12**; dự án đặt source/target **17**. Ant **1.10.17** từ NetBeans đã có trên máy; dependencies lấy từ `library`, không cài global package.
+Đã chạy ứng dụng Windows thật qua Login với tài khoản **giả lập** trên `DAVISYS_SETUP_REVIEW_20261023_A`, dùng Computer Use. Database này được tạo mới từ schema/constraints/procedures của repo, không sao chép tài khoản, khách hàng, giỏ hoặc hóa đơn thật.
 
-| Kiểm tra / Lệnh | Kết quả | Chi tiết |
-|---|---|---|
-| Compile main trước tích hợp | PASS | Ant compile, 118 source files; phân biệt được lỗi base và tích hợp |
-| Build JAR + JUnit | PASS | 58 tests, 0 failures, 0 errors, 0 skipped; JAR ở `DAVISYS_1/dist-integration/DAVISYS_1.jar` |
-| Thuật toán | PASS | 26 tests: scenario nguồn, 3 chiến lược, budget/nhóm, hết hàng, signatures, ties, replacement, immutability, overflow, giá lớn, giới hạn tìm kiếm |
-| Mapper/tiền | PASS | 9 tests: giá âm/lẻ/NaN/Infinity/mất chính xác, budget nguyên lớn, missing category/row, score |
-| Parser/filter/facade | PASS | 11 tests: metadata sai/trùng/thiếu, 5 mục đích, 4 phong cách, parameter nhóm, fallback rõ ràng, mapping nhiều rows, resources |
-| Cart/transaction JDBC giả lập | PASS | 10 tests: context, actual MAGH, một đơn vị/món, merge, stock, deleted product, live price, lỗi dòng giữa rollback toàn bộ, resource closure |
-| Hóa đơn regression | PASS | 1 test giữ semantics giảm giá/điểm và clamp của main |
-| Panel Swing với dữ liệu giả | PASS | 1 test mở panel → tải → chọn nhóm/khách → sinh → chọn → ghi → refresh EDT; truy vấn không chạy EDT; ảnh render đã xem |
-| Git/static review | PASS | Diff whitespace, markers, imports/FQN, secrets mới, build output, generated code và hash các tệp gốc được kiểm tra trước commit |
-| Home + Login + SQL Server end-to-end | NOT RUN | Chưa có DB thử nghiệm được cấp để chạy flow toàn ứng dụng |
-| Khóa/concurrency SQL Server và migration | NOT RUN | JDBC fixture không chứng minh hành vi locking của engine; không chạy SQL vào DB thật |
-| Bán hàng/tạo hóa đơn trên DB | NOT RUN | Compile callers và test công thức đã qua; chưa chạy nghiệp vụ DB thật |
+- Login → Home: PASS, tài khoản qa_setup, tên Nhân viên thử, vai trò Admin.
+- Home → Builder: PASS, tải 6 sản phẩm giả lập và 3 nhóm BP/CH/TN.
+- Gaming + Hiện đại, chọn 3 nhóm: tạo 3 combo; combo tiết kiệm SB0001 + SB0006 + SB0012 = 300.000 VNĐ.
+- Đổi bàn phím sang combo đã được gợi ý khác: hệ thống từ chối combo trùng đúng thông báo. Đổi chuột SB0006 (80.000) → SB0008 (250.000): thành công, tổng 470.000 VNĐ, dư 9.530.000 trên budget 10 triệu.
+- Chọn giỏ `GH-SETUP-1` cho khách thử một, số điện thoại 0900000001: thêm thành công. SQL đối chiếu đúng SB0001/SB0008/SB0012, mỗi dòng SL=1; MAGH khác số điện thoại vẫn hoạt động.
+- Drawer → Giỏ hàng → nhập số điện thoại và xác nhận: hiển thị đúng 3 món, tổng 470.000 VNĐ.
+- Xác nhận đơn hàng: SQL ghi HD01 đúng TENDN=qa_setup, MAKH=QA1, MAGH=GH-SETUP-1, tổng/thành tiền 470.000; 3 detail đúng mã/giá/SL; giỏ rỗng; tồn kho của 3 món 20→19; điểm khách 0→4.
+- Drawer → Hóa đơn → mở chi tiết: hiển thị đủ 3 món, đúng khách/nhân viên/ảnh sản phẩm.
+- Cài đặt, Giới thiệu, quay về Home, vào lại Builder bằng drawer: PASS. Chỉ mở trang Cài đặt, không thay cấu hình.
+- Đăng xuất: đã bấm xác nhận bằng tài khoản thử nghiệm; kiểm tra Login sau đăng xuất ở cuối phiên.
 
-Lệnh PowerShell tái hiện, chạy trong worktree:
+GUI đã chạy trên bản checkout/transaction mới; các tinh chỉnh cuối về cached cart context và từ chối float rounding được compile và chạy đầy đủ test sau đó. Không coi đây là kiểm thử toàn bộ chức năng CRUD của ứng dụng.
+
+## Cô lập dữ liệu và bảo toàn checkout gốc
+
+- Mọi thao tác ghi chỉ vào `DAVISYS_SETUP_REVIEW_20261023_A` hoặc database review #4 đã tạo riêng ở bước trước. Script test từ chối URL/database không có tiền tố review được chỉ định.
+- Hai demo script có `USE [DAVISYS]`; việc kiểm chứng #4 trước đó dùng bản nội dung test đổi đúng đích database, không sửa file SQL gốc. Migration và demo SQL không thay đổi ở lần tích hợp này, bằng chứng #4 vẫn áp dụng cho đúng blob đó.
+- Hash toàn bộ HANG/LOAIHANG/SANPHAM trong DAVISYS gốc vẫn bằng baseline trước review: `9C923EE0399C78BBD4DBF2418E6E2B725A55189071E0558B98A3D42B154A972C`.
+- Checkout gốc `D:\BTL\OOP_Java\DAVISY-main` vẫn giữ nguyên 5 file local chưa commit; không checkout/reset/stash chúng. Công việc thực hiện tại worktree riêng được gắn với chat.
+- Không commit build/dist, cấu hình NetBeans hoặc credentials thật. Không gửi comment, review hay tin nhắn dưới danh nghĩa người khác.
+
+## Tái hiện test SQL
 
 ```powershell
+# Tạo database mới, không ghi đè database đã tồn tại; cần quyền CREATE DATABASE.
+./scripts/New-SetupReviewDatabase.ps1 -Database DAVISYS_SETUP_REVIEW_NEW
+
+# Đặt biến chỉ cho process hiện tại; dùng credentials thử nghiệm của máy bạn.
+$env:DAVISY_TEST_URL='jdbc:sqlserver://localhost:1433;databaseName=DAVISYS_SETUP_REVIEW_NEW;encrypt=true;trustServerCertificate=true'
+$env:DAVISY_TEST_USER='<sql-test-user>'
+$env:DAVISY_TEST_PASSWORD='<sql-test-password>'
 & 'D:\App\NetBeans IDE\extide\ant\bin\ant.bat' -f DAVISYS_1/build.xml '-Dbuild.dir=build-integration' '-Ddist.dir=dist-integration' jar test
-git diff --check bd77a75fd80fe6a2ef3fd06ffa77faa8908c6562 HEAD
-git status --short --branch
+Remove-Item Env:DAVISY_TEST_URL,Env:DAVISY_TEST_USER,Env:DAVISY_TEST_PASSWORD
 ```
 
-Báo cáo JUnit: `DAVISYS_1/build-integration/test/results/TEST-*.xml`. Preview bằng dữ liệu giả: `DAVISYS_1/build-integration/setup-preview.png`.
-Các warning source 17 trên JDK21, deprecated/unchecked và macro NetBeans đã có không làm build/test thất bại.
+Không đặt các biến trên: 59 test thường chạy, 12 test SQL opt-in được skip; skip không phải PASS. Bộ test SQL reset dữ liệu trong database review giữa các test; không dùng nó trên database demo cần giữ dữ liệu. Script tạo schema không chạy seed từ repo; test tự tạo fixture giả lập.
 
-## E. Việc còn lại và chuyển giao
+## Điều kiện còn lại trước merge
 
-1. Mở `DAVISYS_1` **trong worktree** bằng NetBeans. Cấu hình boundary JDBC theo DB thử nghiệm riêng; tránh commit cấu hình riêng hay secret. Chạy Login và đăng nhập tài khoản của DB thử nghiệm.
-2. Với dữ liệu cũ, mở Tổng quan → Smart Setup Builder (hoặc drawer), để hai tiêu chí **Không lọc**, chọn các nhóm có hàng và budget đủ. Chọn giỏ của người đăng nhập; phải có giỏ đã tạo theo flow bán hàng cũ. Sinh, chọn, đổi cùng loại rồi thêm; kiểm tra GIOHANGTAM có một đơn vị/món và tổng màn hình được refresh khi đang xem khách đó.
-3. Chỉ khi cần lọc mục đích/phong cách: sao lưu DB, chạy migration mở rộng MOTA thủ công trên bản thử nghiệm rồi nhập mô tả đã xác minh theo `database/setup_metadata_example.md`. Không tự gán fit cho dữ liệu thật. Kiểm tra các cặp tiêu chí; không yêu cầu mọi cặp phải có kết quả khi dữ liệu thực không đáp ứng.
-4. Thử đổi giá/stock/xóa sản phẩm sau khi tạo combo; thao tác phải thất bại và không ghi một phần. Trên DB thử nghiệm, gây lỗi dòng thứ hai và xác nhận toàn transaction rollback; chạy hai thao tác đồng thời để kiểm chứng lock/không mất cập nhật. Fixture chỉ kiểm chứng contract Java, không thay thế bước này.
-5. Kiểm tra menu Cài đặt/Giới thiệu/Đăng xuất và quay lại các màn hình bán hàng/giỏ/hóa đơn. Flow cũ vẫn dùng float/FLOAT; cần đối chiếu giá lớn, làm tròn và tổng hóa đơn khi nghiệm thu. Không tuyên bố toàn bộ regression đã qua chỉ từ test công thức.
-
-Migration được lưu ở `database/migrations/001_setup_description_capacity.sql`: guard DB/schema, không thu nhỏ cột, idempotent, transaction + rollback. Không nhập/chạy script cài mới lên DB hiện hữu.
-
-Lệnh push **chỉ đề xuất, chưa thực thi**, sau khi người dùng cho phép:
-
-```powershell
-git push -u origin integration/setup-builder
-```
-
-Gợi ý PR sau khi được phép push: base=`main`, head=`integration/setup-builder`.
-Tiêu đề: `Integrate Smart Setup Builder strategies, filters and transactional cart`.
-Mô tả: Nhúng một Setup Builder trong DAVISY để lọc theo tiêu chí, tạo tối đa ba combo trong budget, đổi phụ kiện cùng loại và ghi vào giỏ hiện hữu theo transaction. Giữ các bản vá DAO/hóa đơn trên main và metadata NetBeans; cung cấp migration MOTA thủ công.
-Checklist: build/JUnit PASS; SQL Server locking/rollback, Home end-to-end, bán hàng/hóa đơn và migration trên DB thử nghiệm còn cần kiểm chứng.
+1. Review/Approve bản head mới của #1; review cũ của Phong tại 9b0d538 chưa bao gồm CheckoutDAO và các sửa lỗi lần này. #4 cũng chưa được gửi Approve trong phiên làm việc này.
+2. Chọn thứ tự merge #4 rồi #1 để giữ PR đóng góp riêng; #1 đã chứa ancestor #4 nên không cần áp lại gói ảnh/SQL. Không merge trùng #3.
+3. Bản dữ liệu demo thật SB0001–SB0060 của Phong chưa có trên máy này. Trước trình diễn/rollout cần đối chiếu metadata/hãng/loại, tiền đề Logitech của SB0012 và các dòng chưa xác định hãng; không dùng fixture kiểm thử như bộ demo hoàn chỉnh.
+4. Chưa kiểm thử máy in vật lý, webcam/QR, gửi email, toàn bộ CRUD/role matrix hoặc các thao tác sửa chi tiết hóa đơn/đổi điểm/giảm giá qua GUI. Công thức hóa đơn hiện có đã có regression test; không tuyên bố mọi nghiệp vụ cũ đều đã nghiệm thu.
+5. Schema hóa đơn cũ còn FLOAT/float và cấp ID khóa bảng; bản này bảo vệ độ chính xác/atomicity trong phạm vi checkout, chưa thay kiến trúc tiền tệ hay tối ưu tải lớn toàn hệ thống.
