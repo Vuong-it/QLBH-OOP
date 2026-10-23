@@ -15,15 +15,17 @@ public class DemoCatalogTest {
         assertEquals(61, rows.size());
         assertEquals("MASP\tTENSP\tMALH\tMAHANG\tSOLUONG\tGIANHAP\tGIABAN\tNGAYNHAP\tHINH\tMOTA", rows.get(0));
         Set<String> codes = new HashSet<>(); Map<String,Integer> groups = new TreeMap<>();
-        int unknown = 0, fictional = 0, outOfStock = 0;
-        Map<String,String> demoBrands=Map.ofEntries(Map.entry("BP","D01"),Map.entry("CH","D02"),Map.entry("DB","D03"),Map.entry("DTN","D04"),Map.entry("GD","D05"),Map.entry("HUB","D06"),Map.entry("LC","D07"),Map.entry("LOA","D08"),Map.entry("MC","D09"),Map.entry("SDP","D10"),Map.entry("TN","D11"),Map.entry("WC","D12"));
+        int unknown = 0, randomAssigned = 0, outOfStock = 0;
+        Set<String> existingBrands=Set.of("B01","B02","B03","B04","B05","B06","B07","B08","B09","B10","B11","B12","B13","B14","B16","B17","B18","B19","B20","B21","B22","B23","B24","B25","B26","LG");
+        Map<String,String> assignments=Map.ofEntries(Map.entry("SB0003","B21"),Map.entry("SB0004","B23"),Map.entry("SB0005","B16"),Map.entry("SB0007","B16"),Map.entry("SB0008","B08"),Map.entry("SB0011","B21"),Map.entry("SB0014","B24"),Map.entry("SB0015","B22"),Map.entry("SB0018","B02"),Map.entry("SB0019","B21"),Map.entry("SB0020","B14"),Map.entry("SB0021","B01"),Map.entry("SB0022","B07"),Map.entry("SB0023","B24"),Map.entry("SB0024","B24"),Map.entry("SB0025","B10"),Map.entry("SB0027","B17"),Map.entry("SB0028","B09"),Map.entry("SB0029","B02"),Map.entry("SB0030","B10"),Map.entry("SB0031","B12"),Map.entry("SB0037","B18"),Map.entry("SB0043","B08"),Map.entry("SB0050","B09"),Map.entry("SB0051","B04"),Map.entry("SB0052","B10"),Map.entry("SB0053","B20"),Map.entry("SB0054","B23"),Map.entry("SB0055","B23"),Map.entry("SB0056","LG"));
         String[] purposes={"Gaming","Học tập","Văn phòng","Thiết kế đồ họa","Làm việc đa nhiệm"};
         String[] styles={"Hiện đại","Tối giản","Năng động","Sang trọng"};
         for (int i=1;i<rows.size();i++) {
             String[] c=rows.get(i).split("\t",-1); assertEquals(10,c.length);
             assertEquals(String.format("SB%04d",i),c[0]); assertTrue(codes.add(c[0]));
             groups.merge(c[2],1,Integer::sum); if(c[3].equals("DEMO")) unknown++;
-            if(c[3].matches("D[0-9]{2}")){fictional++;assertEquals(demoBrands.get(c[2]),c[3]);}
+            assertTrue(existingBrands.contains(c[3]));
+            if(assignments.containsKey(c[0])){randomAssigned++;assertEquals(assignments.get(c[0]),c[3]);}
             int stock=Integer.parseInt(c[4]); assertTrue(stock>=0); if(stock==0) outOfStock++;
             assertTrue(Long.parseLong(c[5])>0); assertTrue(Long.parseLong(c[6])>0);
             java.time.LocalDate.parse(c[7]); assertEquals(c[0],c[8]);
@@ -42,6 +44,6 @@ public class DemoCatalogTest {
             if(c[0].equals("SB0012")){assertEquals("TN",c[2]);assertEquals("LG",c[3]);assertTrue(c[9].contains("3,5 mm"));assertFalse(c[9].contains("USB-A"));}
         }
         assertEquals(12,groups.size()); for(int count:groups.values())assertEquals(5,count);
-        assertEquals(0,unknown); assertEquals(30,fictional); assertEquals(3,outOfStock);
+        assertEquals(0,unknown); assertEquals(30,randomAssigned); assertEquals(3,outOfStock);
     }
 }

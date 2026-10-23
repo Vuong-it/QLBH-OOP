@@ -4,7 +4,7 @@ Bộ bàn giao hoàn chỉnh nằm tại [database/demo/README.md](../database/d
 
 ## Các điểm đã chốt
 
-- Hãng: 30 sản phẩm có hãng xác định được giữ nguyên. 30 sản phẩm còn lại đã được gán 12 tên hãng do nhóm tự đặt theo yêu cầu ngày 24/10/2026, có hậu tố (demo). Xem database/demo/fictional_brands.md để phân biệt hãng giả lập với hãng xác định từ ảnh.
+- Hãng: giữ nguyên 30 sản phẩm đã có hãng; 30 sản phẩm còn lại được gán ngẫu nhiên vào 26 hãng có sẵn của nhóm đã xác định. Không thêm hãng mới. Xem assigned_demo_brands.md và bảng quyết định từng mã. Phép gán này phục vụ demo, không xác minh hãng thật của 30 sản phẩm theo ảnh.
 - Loại: 12 nhóm, mỗi nhóm 5; SB0011–SB0015 đều là TN. SB0012 giữ LG/LOGITECH và TN.
 - SB0004: bỏ TKL vì ảnh có cụm phím số; tên mới Bàn phím Gaming có cụm phím số. Không kết luận loại switch từ ảnh.
 - SB0012: sửa đặc điểm USB-A thành đầu cắm 3,5 mm theo ảnh Logitech H111; giữ điểm demo của nhóm. Không đổi giá/tồn kho snapshot.
@@ -41,7 +41,7 @@ Số sản phẩm còn hàng, điểm mục đích >=70, khớp phong cách theo
 ## Kiểm chứng đã thực hiện
 
 - Biên dịch main mới nhất bằng JDK 17: PASS.
-- DemoCatalogTest: PASS; kiểm tra đủ 60 mã liên tục, 60 ảnh, 12×5 nhóm, 30 sản phẩm thuộc hãng giả lập và không còn mã DEMO, 3 món hết hàng; 300 điểm mục đích và phong cách đọc qua parser thật; SB0004/SB0012 đúng quyết định.
+- DemoCatalogTest: PASS; kiểm tra đủ 60 mã liên tục, 60 ảnh, 12×5 nhóm, 30 sản phẩm được gán ngẫu nhiên từ hãng có sẵn và không còn mã DEMO, 3 món hết hàng; 300 điểm mục đích và phong cách đọc qua parser thật; SB0004/SB0012 đúng quyết định.
 - SQL Server 2025 (bản 23/10, trước lần bổ sung hãng giả lập): dựng mới thành công, InsertedProducts=60, UpdatedProducts=0; đủ 13 thủ tục và giỏ/tài khoản demo.
 - Bộ kiểm chứng cập nhật của bản 23/10: 7/7 PASS. Preview không ghi; cố ý đưa SB0004/SB0012 về mô tả cũ trong DB demo rồi apply sửa đúng 2 dòng; repeat 0 dòng; tên hãng xung đột bị từ chối; giữ 30 sản phẩm lúc đó chưa rõ hãng và 3 món hết hàng; nguồn DAVISYS không đổi.
 - Đã xem trực quan cả 60 ảnh, xem riêng ảnh lớn SB0013 và SB0048, đối chiếu SB0012. Đây là đối chiếu nhãn/nhóm hình, không xác thực hàng hóa thật.
@@ -49,4 +49,4 @@ Số sản phẩm còn hàng, điểm mục đích >=70, khớp phong cách theo
 
 ## Bổ sung hãng ngày 24/10/2026
 
-Đã gán 12 hãng giả lập cho đúng 30 dòng còn thiếu, giữ nguyên hãng của 30 dòng đã xác định. Cả 60 dòng hiện có hãng cụ thể; tên tự đặt đều có hậu tố (demo). Catalog, bảng quyết định và cả ba SQL dựng/cập nhật/kiểm tra đã đồng bộ. SQL thực tế 7/7 ở trên là kết quả bản trước; thay đổi tên hãng lần này được kiểm tra bằng đối chiếu dữ liệu/SQL và DemoCatalogTest, chưa chạy lại trên SQL Server. Muốn áp dụng vào database demo riêng đã dựng, chạy script 03 ở preview rồi @Apply=1.
+Đã sửa theo đúng yêu cầu: không tự đặt tên hãng. 30 sản phẩm chưa rõ hãng được gán ngẫu nhiên từ 26 hãng đã có trong 30 sản phẩm xác định trước đây. Kết quả đã cố định trong catalog/SQL để chạy lặp nhất quán; 30 sản phẩm có hãng trước đây không đổi. Xem bảng gán đầy đủ tại assigned_demo_brands.md (trong database/demo). Không đổi metadata, ảnh, giá, tồn kho hoặc loại. DemoCatalogTest và kiểm tra đồng nhất SQL đạt; chưa áp dụng lần đổi hãng này vào SQL Server đang chạy.
