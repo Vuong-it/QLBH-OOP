@@ -3,7 +3,6 @@ package com.dao;
 import com.entity.SetupFilterProduct;
 import com.utils.JdbcHelper;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -34,10 +33,7 @@ public final class SetupFilterDAO {
     private final ConnectionProvider connections;
 
     public SetupFilterDAO() {
-        this(() -> DriverManager.getConnection(
-                System.getProperty("davisy.jdbc.url", JdbcHelper.dburl),
-                System.getProperty("davisy.jdbc.user", JdbcHelper.user),
-                System.getProperty("davisy.jdbc.password", JdbcHelper.pass)));
+        this(JdbcHelper::openConnection);
     }
 
     public SetupFilterDAO(ConnectionProvider connections) {

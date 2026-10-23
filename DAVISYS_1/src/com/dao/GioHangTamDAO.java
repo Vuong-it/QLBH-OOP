@@ -24,6 +24,10 @@ public class GioHangTamDAO extends DAVISY<GioHangTamEntity, String> {
     final String SELECT_BY_ID_SQL = "SELECT a.MAKH,a.HOTEN,a.DIENTHOAI,b.MAGH,f.MAHANG,g.MALH,f.TENHANG,g.TENLH,e.TENNV, d.MASP,d.TENSP,d.GIABAN,d.GIANHAP, c.SOLUONG \n"
             + "FROM KHACHHANG a ,GIOHANG b ,GIOHANGTAM c,SANPHAM d, TAIKHOAN e, HANG f,LOAIHANG g WHERE a.MAKH =b.MAKH AND b.MAGH=c.MAGH AND c.MASP =d.MASP AND b.TENDN =e.TENDN  AND d.MAHANG=f.MAHANG AND d.MALH=g.MALH AND a.DIENTHOAI = ?";
 
+    /** Read a single cart owned by the signed-in account, independent of phone-as-ID conventions. */
+    public List<GioHangTamEntity> selectByCart(String cartId, String username) {
+        return selectBySql(SELECT_ALL_SQL + " AND b.MAGH=? AND b.TENDN=?", cartId, username);
+    }
     @Override
     public void insert(GioHangTamEntity entity) {
         JdbcHelper.update(INSERT_SQL, entity.getMaGH(), entity.getMaSP(), entity.getSoLuong());

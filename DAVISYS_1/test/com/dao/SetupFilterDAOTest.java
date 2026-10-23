@@ -1,6 +1,10 @@
 package com.dao;
 
+import com.entity.SetupProduct;
+import com.service.SetupBuilderFacade;
+import com.service.SetupBuilderService;
 import com.support.FakeSetupDatabase;
+import java.util.List;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -23,6 +27,13 @@ public class SetupFilterDAOTest {
         assertTrue(dao.getProducts("Gaming", "Hiện đại").isEmpty());
         assertTrue(dao.getProducts("Học tập", "Sang trọng").isEmpty());
         assertTrue(dao.getProducts("Học tập", "Tối giản", "MISSING").isEmpty());
+    }
+    @Test public void facadeMapsMultipleRowsIntoAlgorithmWithoutRowContamination() {
+        FakeSetupDatabase db = data(); SetupBuilderFacade facade = new SetupBuilderFacade(new SetupFilterDAO(db::open), new SetupBuilderService());
+        List<SetupProduct> products = facade.getProducts(null, null);
+        var combo = facade.generateCombos(products, 300, List.of("BP", "TN")).get(0);
+        assertEquals(300, combo.getTongTien()); assertEquals(2, combo.getProducts().size());
+        assertEquals(1, products.get(1).getDiemPhuHop());
     }
     @Test public void mapsMultipleRowsWithoutContamination() {
         var products = new SetupFilterDAO(data()::open).getProducts(null, null);

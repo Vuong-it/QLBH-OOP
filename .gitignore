@@ -9,3 +9,7 @@
 /DAVISYS_1/build/
 /DAVISYS_1/nbproject/private/
 /DAVISYS_1/dist/
+
+# Isolated verification output for local setup integration
+/DAVISYS_1/build-integration/
+/DAVISYS_1/dist-integration/

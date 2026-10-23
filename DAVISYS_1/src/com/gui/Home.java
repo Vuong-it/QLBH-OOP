@@ -64,6 +64,7 @@ import com.cart.ModelItem;
 import com.dao.ChucVuDAO;
 import com.dao.GioHangDAO;
 import com.dao.GioHangTamDAO;
+import com.dao.SetupCartDAO;
 import com.dao.HoaDonCTDAO;
 import com.dao.HoaDonDAO;
 import com.dao.ThongKeDAO;
@@ -196,6 +197,7 @@ public class Home extends javax.swing.JFrame implements Runnable, ThreadFactory 
     //tạo mảng chứa các phần tử menu
     Button[] arrBtn;
     private FormHome home;
+    private SetupBuilderPanel setupBuilderPanel;
     //màu hiển thị khi chọn menu
     Color chooserMenuItem = new Color(0, 153, 0);
     Color defaultMenuItem = Color.black;
@@ -263,6 +265,7 @@ public class Home extends javax.swing.JFrame implements Runnable, ThreadFactory 
         ktTenDN = "dangth";
         loadMain(); //gọi component Loading khi đang chờ kết nối Database
         initMenu(); //gọi lại phương thức khởi tạo MENU
+        initSetupNavigation();
 
         initThongKe();
         lightModeTK();
@@ -312,6 +315,7 @@ public class Home extends javax.swing.JFrame implements Runnable, ThreadFactory 
         ktTenDN = tenDN;
         loadMain(); //gọi component Loading khi đang chờ kết nối Database
         initMenu(); //gọi lại phương thức khởi tạo MENU
+        initSetupNavigation();
 
         initThongKe();
         initNhanVien();
@@ -397,6 +401,60 @@ public class Home extends javax.swing.JFrame implements Runnable, ThreadFactory 
         loadThread.start();
     }
 
+    /** Runtime navigation keeps all NetBeans-generated code and Home.form unchanged. */
+    private void initSetupNavigation() {
+        javax.swing.JButton setupButton = new javax.swing.JButton("Smart Setup Builder");
+        setupButton.addActionListener(e -> showSetupBuilder());
+        cardMenubarTrangChu.add(setupButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(650, 10, 240, 30));
+    }
+
+    private void showSetupBuilder() {
+        if (setupBuilderPanel == null) {
+            setupBuilderPanel = new SetupBuilderPanel(new com.service.SetupBuilderFacade(),
+                    new SetupCartDAO(), ktTenDN, this::refreshSetupCartView);
+            cardTrangChu.add(setupBuilderPanel, "smartSetup");
+        }
+        chooserMainPage = false;
+        hidePage();
+        hideMenu();
+        ((java.awt.CardLayout) cardTrangChu.getLayout()).show(cardTrangChu, "smartSetup");
+        setupBuilderPanel.refreshOptions();
+        chose = 9;
+    }
+
+    private void refreshSetupCartView() {
+        final String phone = setupBuilderPanel.getSelectedCustomerPhone();
+        final SetupCartDAO.CartContext cart = setupBuilderPanel.getSelectedCart();
+        final String cartId = setupBuilderPanel.getSelectedCartId();
+        salesCartId = cartId;
+        if (phone == null || !phone.equals(txtSdtKH.getText().trim())) return;
+        new javax.swing.SwingWorker<List<GioHangTamEntity>, Void>() {
+            @Override protected List<GioHangTamEntity> doInBackground() {
+                List<GioHangTamEntity> rows = GioHangtam.selectByCart(cartId, ktTenDN);
+                return rows == null ? new ArrayList<GioHangTamEntity>() : rows;
+            }
+            @Override protected void done() {
+                if (!phone.equals(txtSdtKH.getText().trim()) || !java.util.Objects.equals(cartId, salesCartId)) return;
+                try {
+                    listGHT = get();
+                    DefaultTableModel model = (DefaultTableModel) tblCart.getModel();
+                    model.setRowCount(0);
+                    long total = 0;
+                    for (GioHangTamEntity row : listGHT) {
+                        model.addRow(new Object[]{row.getMaSP(), row.getTenSP(), row.getGiaBan(), row.getSoLuong()});
+                        total = Math.addExact(total, Math.multiplyExact(
+                                com.service.SetupMoney.fromDatabase(row.getGiaBan()), row.getSoLuong()));
+                    }
+                    txtTongtiensp.setText(total + " VND");
+                    displayedSalesCart = cart;
+                    btnXacNhanDonHang.setEnabled(!listGHT.isEmpty());
+                } catch (Exception ex) {
+                    MsgBox.alert(Home.this, "Giỏ đã được ghi; không tải lại được màn hình. Hãy mở lại giỏ hàng.");
+                }
+            }
+        }.execute();
+    }
+
     void showLoadBar() {
     }
 
@@ -412,6 +470,7 @@ public class Home extends javax.swing.JFrame implements Runnable, ThreadFactory 
                 .addChild(new DrawerItem("Hóa đơn").build())
                 .addChild(new DrawerItem("Giỏ hàng").build())
                 .addChild(new DrawerItem("Thống kê").build())
+                .addChild(new DrawerItem("Smart Setup Builder").build())
                 .addFooter(new Separator())
                 .addFooter(new DrawerItem("Cài đặt").build())
                 .addFooter(new DrawerItem("Giới thiệu").build())
@@ -540,6 +599,9 @@ public class Home extends javax.swing.JFrame implements Runnable, ThreadFactory 
                                 }
                                 break;
                             case 6:
+                                showSetupBuilder();
+                                break;
+                            case 7:
                                 //gọi dialog cài đặt
                                 //new CaiDat(new Home(), true).setVisible(true);
                                 if (chose == -1 || chose != 6) {
@@ -552,7 +614,7 @@ public class Home extends javax.swing.JFrame implements Runnable, ThreadFactory 
                                     chose = 6;
                                 }
                                 break;
-                            case 7:
+                            case 8:
                                 //gọi trang giới thiệu
                                 if (chose == -1 || chose != 7) {
                                     hidePage();
@@ -563,7 +625,7 @@ public class Home extends javax.swing.JFrame implements Runnable, ThreadFactory 
                                     chose = 7;
                                 }
                                 break;
-                            case 8:
+                            case 9:
                                 //gọi phương thức đăng xuất
                                 signOut();
                                 break;
@@ -975,6 +1037,7 @@ public class Home extends javax.swing.JFrame implements Runnable, ThreadFactory 
 
     //phương thức ẩn các trang
     public void hidePage() {
+        if (setupBuilderPanel != null) setupBuilderPanel.setVisible(false);
         this.arrPn = new JPanel[]{
             cardTrangChuTongQuan,
             cardThongKeDoanhThu, cardThongKeSanPham,
@@ -2924,7 +2987,6 @@ public class Home extends javax.swing.JFrame implements Runnable, ThreadFactory 
 //Đẩy dữ liệu lên database
     public HoaDonEntity getFormHoaDon() {
         HoaDonEntity hd = new HoaDonEntity();
-        GioHangTamEntity gh = listGHT.get(0);
         listHoaDon();
         if (listHoaDon.size() < 10) {
             hd.setMaHD("HD0" + (listHoaDon.size() + 1));
@@ -2932,8 +2994,8 @@ public class Home extends javax.swing.JFrame implements Runnable, ThreadFactory 
             hd.setMaHD("HD" + (listHoaDon.size() + 1));
         }
         hd.setTenDN(ktTenDN);
-        hd.setMaKH(gh.getMaKH());
-        hd.setMaGH(txtSdtKH.getText());
+        hd.setMaKH(currentSalesCart().customerId);
+        hd.setMaGH(currentSalesCart().cartId);
         hd.setNgayLap(dayNow);
         hd.setTongTien(Float.valueOf(txtTongtiensp.getText().substring(0, txtTongtiensp.getText().length() - 4)));
         hd.setPhanTramGG(0);
@@ -2982,30 +3044,38 @@ public class Home extends javax.swing.JFrame implements Runnable, ThreadFactory 
 
 //Thêm dữ liệu 
     public void insertHoaDon() {
-        HoaDonEntity hd = getFormHoaDon();
-        float tien = Float.valueOf(txtTongtiensp.getText().substring(0, txtTongtiensp.getText().length() - 3));
+        final SetupCartDAO.CartContext cart;
+        final long expectedTotal;
         try {
-            HoaDon.insert(hd);
-            listHoaDon();
-            this.fillTableHoaDon();
-            maHDT = hd.getMaHD();
-            insertCTHD();
-            if (tien >= 100000) {
-                KhachHangEntity kh = KhachHang.selectById(hd.getMaKH());
-                int diem = (int) (tien / 100000) + kh.getTichDiem();
-                kh.setMaKH(hd.getMaKH());
-                kh.setTichDiem(diem);
-                KhachHang.updateTd(kh);
-                listKhachHang();
-                this.fillTableKhachHang();
-            }
-        } catch (Exception e) {
-            MsgBox.alert(this, e + "Thêm mới thất bại!");
-            System.out.println(e);
+            cart = displayedSalesCart;
+            if (cart == null || !cart.phone.equals(txtSdtKH.getText().trim()))
+                throw new IllegalStateException("Hãy tải lại giỏ hàng.");
+            expectedTotal = Long.parseLong(txtTongtiensp.getText().replace(" VND", "").trim());
+        } catch (Exception ex) {
+            MsgBox.alert(this, "Vui lòng tải lại giỏ hàng của khách hàng trước khi xác nhận.");
+            return;
         }
-
+        btnXacNhanDonHang.setEnabled(false);
+        new javax.swing.SwingWorker<com.dao.CheckoutDAO.Receipt, Void>() {
+            @Override protected com.dao.CheckoutDAO.Receipt doInBackground() {
+                return new com.dao.CheckoutDAO().checkout(cart, expectedTotal);
+            }
+            @Override protected void done() {
+                try {
+                    com.dao.CheckoutDAO.Receipt receipt = get();
+                    maHDT = receipt.invoiceId();
+                    listHoaDon(); fillTableHoaDon(); listHoaDonCT();
+                    listKhachHang(); fillTableKhachHang(); listSPT();
+                    filltableGioHang();
+                    setDataPieChart(pnlChart); setDataBarChart(pnlChartDT);
+                } catch (Exception ex) {
+                    Throwable cause = ex.getCause() == null ? ex : ex.getCause();
+                    MsgBox.alert(Home.this, cause.getMessage());
+                    filltableGioHang();
+                }
+            }
+        }.execute();
     }
-
 //Cập nhật dữ liệu
     public void updateHoaDon() {
         HoaDonEntity hd = getFormHoaDon();
@@ -4080,11 +4150,11 @@ public class Home extends javax.swing.JFrame implements Runnable, ThreadFactory 
 //Thêm dữ liệu
     public void insertGH(String ma, int sl) {
         listGHT.clear();
-        listGHT = GioHangtam.selectByIdlist(txtSdtKH.getText());
+        listGHT = GioHangtam.selectByCart(currentSalesCart().cartId, ktTenDN);
         if (listGHT == null || listGHT.isEmpty()) {
             try {
                 GioHangTamEntity gh = new GioHangTamEntity();
-                gh.setMaGH(txtSdtKH.getText());
+                gh.setMaGH(currentSalesCart().cartId);
                 gh.setMaSP(ma);
                 gh.setSoLuong(sl);
                 GioHangtam.insert(gh);
@@ -4100,7 +4170,7 @@ public class Home extends javax.swing.JFrame implements Runnable, ThreadFactory 
                     int choice = (JOptionPane.showConfirmDialog(this, "Sản phẩm đã tồn tại \n Bạn có muốn tăng số lượng không?", "Xác nhận", JOptionPane.YES_NO_OPTION));
                     if (choice == JOptionPane.YES_OPTION) {
                         try {
-                            gh.setMaGH(txtSdtKH.getText());
+                            gh.setMaGH(currentSalesCart().cartId);
                             gh.setMaSP(ma);
                             gh.setSoLuong(gh.getSoLuong() + 1);
                             GioHangtam.update(gh);
@@ -4117,7 +4187,7 @@ public class Home extends javax.swing.JFrame implements Runnable, ThreadFactory 
             }
             try {
                 GioHangTamEntity gh = new GioHangTamEntity();
-                gh.setMaGH(txtSdtKH.getText());
+                gh.setMaGH(currentSalesCart().cartId);
                 gh.setMaSP(ma);
                 gh.setSoLuong(sl);
                 GioHangtam.insert(gh);
@@ -4131,7 +4201,7 @@ public class Home extends javax.swing.JFrame implements Runnable, ThreadFactory 
 
     public GioHangTamEntity getFormGH(int sl) {
         GioHangTamEntity gh = new GioHangTamEntity();
-        gh.setMaGH(txtSdtKH.getText());
+        gh.setMaGH(currentSalesCart().cartId);
         gh.setMaSP((String) tblCart.getValueAt(this.row, 0));
         gh.setSoLuong(sl);
         return gh;
@@ -4190,7 +4260,7 @@ public class Home extends javax.swing.JFrame implements Runnable, ThreadFactory 
 //delete dữ liệ giỏ hàng tạm
 
     public void deleteGH() {
-        String magh = txtSdtKH.getText();
+        String magh = currentSalesCart().cartId;
         String masp = (String) tblCart.getValueAt(this.row, 0);
         try {
             GioHangtam.delete2(magh, masp);
@@ -4237,81 +4307,6 @@ public class Home extends javax.swing.JFrame implements Runnable, ThreadFactory 
 //Lấy ngày hiện tại
     public java.sql.Date day() {
         return dayNow;
-    }
-
-    public HoaDonCTEntity getFormHDCT(int i) {
-        if (i >= 0) {
-            listCtHD.clear();
-            listCtHD = HDCT.selectAll();
-            HoaDonCTEntity hd = new HoaDonCTEntity();
-            GioHangTamEntity gh = listGHT.get(i);
-            if (listCtHD.size() < 10) {
-                hd.setMaCTHD("CTHD0" + (listCtHD.size() + 1));
-            } else {
-                hd.setMaCTHD("CTHD" + (listCtHD.size() + 1));
-            }
-            hd.setMaHD(maHDT);
-            hd.setMaSP(gh.getMaSP());
-            hd.setMaHang(gh.getMaHang());
-            hd.setMaLH(gh.getMaLoai());
-            hd.setNgayLap(dayNow);
-            hd.setTenSP(gh.getTenSP());
-            hd.setTenHang(gh.getTenHang());
-            hd.setTenLH(gh.getTenLoai());
-            hd.setNgayNhap(dayNow);
-            hd.setGiaNhap(gh.getGiaNhap());
-            hd.setGiaBan(gh.getGiaBan());
-            hd.setSl(gh.getSoLuong());
-            return hd;
-        }
-        return null;
-    }
-//Thêm dữ liệu 
-
-    public void insertCTHD() {
-        int i = 0;
-        listGHT.clear();
-        listGHT = GioHangtam.selectByIdlist(txtSdtKH.getText());
-        for (GioHangTamEntity gh : listGHT) {
-            HoaDonCTEntity hd = getFormHDCT(i);
-            SanPhamEntity sp = SanPham.selectById(hd.getMaSP());
-            if (hd.getSl() <= sp.getSl()) {
-                try {
-                    HDCT.insert(hd);
-                    GioHangtam.delete2(gh.getMaGH(), gh.getMaSP()); // Xóa giỏ hàng tạm
-                    listHoaDonCT();
-                    listGHT();
-                    int slSP = sp.getSl() - hd.getSl();
-                    sp.setMaSP(gh.getMaSP());
-                    sp.setSl(slSP);
-                    SanPham.updateSL(sp);
-                    if (slSP == 0) {
-                        listSPT();
-                        cardHoaDonSanPham.removeAll();
-                        cardHoaDonSanPham.setVisible(false);
-                        cardHoaDonSanPham.setVisible(true);
-                        cartShoping(" ");
-                    }
-                    spnSL.setValue(0);
-                    this.filltableGioHang();
-                } catch (Exception e) {
-                    MsgBox.alert(this, "Thêm mới thất bại!");
-                    System.out.println(e);
-                }
-            } else {
-                if (sp.getSl() <= 0) {
-                    MsgBox.alert(this, "Sản phẩm đã bán hết!");
-                    GioHangtam.delete2(gh.getMaGH(), gh.getMaSP());
-                    listGHT();
-                    this.filltableGioHang();
-                    return;
-                } else {
-                    MsgBox.alert(this, "Số lượng sản phẩm " + sp.getMaSP() + " phải nhỏ hơn hoặc bằng " + sp.getSl());
-                }
-                return;
-            }
-        }
-        i++;
     }
 
     public void openWebCame() {
@@ -4415,38 +4410,51 @@ public class Home extends javax.swing.JFrame implements Runnable, ThreadFactory 
         cartShoping(txtFindNameProductCart.getText());
     }
 
+    private String salesCartId;
+    private SetupCartDAO.CartContext displayedSalesCart;
+
+    private SetupCartDAO.CartContext currentSalesCart() {
+        String phone = txtSdtKH.getText().trim();
+        List<SetupCartDAO.CartContext> carts = new SetupCartDAO().getCarts(ktTenDN).stream()
+                .filter(cart -> phone.equals(cart.phone)).toList();
+        for (SetupCartDAO.CartContext cart : carts) {
+            if (cart.cartId.equals(salesCartId)) return cart;
+        }
+        if (carts.size() == 1) return carts.get(0);
+        for (SetupCartDAO.CartContext cart : carts) {
+            if (cart.cartId.equals(phone)) return cart;
+        }
+        throw new IllegalStateException("Vui lòng chọn giỏ hàng trong Setup Builder hoặc tạo giỏ cho tài khoản hiện tại.");
+    }
+
     public void filltableGioHang() {
         DefaultTableModel model = (DefaultTableModel) tblCart.getModel();
         model.setRowCount(0);
-        int thanhTien = 0;
-        int check = 0;
-        String sdt = txtSdtKH.getText(), ten = null;
-        listGHT();
-        KhachHangEntity kh = KhachHang.selectBySDT(sdt);
-        lblNameCustomer.setText(kh.getHoTen());
+        txtTongtiensp.setText("0 VND");
+        btnXacNhanDonHang.setEnabled(false);
+        listGHT = new ArrayList<>();
+        displayedSalesCart = null;
+        KhachHangEntity customer = KhachHang.selectBySDT(txtSdtKH.getText().trim());
+        lblNameCustomer.setText(customer == null ? "" : customer.getHoTen());
+        if (customer == null) return;
         try {
-            for (GioHangTamEntity gh : listGHT) {
-                if (sdt.equals(gh.getMaGH())) {
-                    check++;
-                    thanhTien += gh.getTongTien();
-                    Object[] row = {gh.getMaSP(), gh.getTenSP(), gh.getGiaBan(), gh.getSoLuong()};
-                    model.addRow(row);
-
-                }
-                txtTongtiensp.setText(String.valueOf(thanhTien) + " VND");
+            SetupCartDAO.CartContext cart = currentSalesCart();
+            salesCartId = cart.cartId;
+            listGHT = GioHangtam.selectByCart(cart.cartId, ktTenDN);
+            long total = 0;
+            for (GioHangTamEntity line : listGHT) {
+                total = Math.addExact(total, Math.multiplyExact(
+                        com.service.SetupMoney.fromDatabase(line.getGiaBan()), line.getSoLuong()));
+                model.addRow(new Object[]{line.getMaSP(), line.getTenSP(), line.getGiaBan(), line.getSoLuong()});
             }
-
-            if (check > 0) {
-                btnXacNhanDonHang.setEnabled(true);
-            } else {
-                btnXacNhanDonHang.setEnabled(false);
-            }
-        } catch (Exception e) {
-            MsgBox.alert(this, "Lỗi truy vấn dữ liệu!");
-            System.out.println(e);
+            txtTongtiensp.setText(total + " VND");
+            displayedSalesCart = cart;
+            btnXacNhanDonHang.setEnabled(!listGHT.isEmpty());
+        } catch (Exception ex) {
+            // No owned/unambiguous cart: keep an empty table and checkout disabled.
+            lblNameCustomer.setToolTipText(ex.getMessage());
         }
     }
-
 //-----------------------------------------------------------THỐNG KÊ------------------------------------------------------------
 //Hiển trị dữ liệu trên bảng và trạng thái ban đầu của các nút
     public void initThongKe() {
@@ -11040,8 +11048,6 @@ public class Home extends javax.swing.JFrame implements Runnable, ThreadFactory 
 
     private void btnXacNhanDonHangActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnXacNhanDonHangActionPerformed
         insertHoaDon();
-        setDataPieChart(pnlChart);
-        setDataBarChart(pnlChartDT);
     }//GEN-LAST:event_btnXacNhanDonHangActionPerformed
 
     private void txtTongtienspCaretUpdate(javax.swing.event.CaretEvent evt) {//GEN-FIRST:event_txtTongtienspCaretUpdate
