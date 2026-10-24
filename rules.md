@@ -144,7 +144,7 @@ Xây dựng tính năng gợi ý combo phụ kiện thông minh cho khách hàng
 2. **Bước 2 - Chạy Build và Test cục bộ:**
    Đảm bảo dự án Clean & Build thành công trên NetBeans, toàn bộ JUnit test đều màu XANH (PASS).
 3. **Bước 3 - Push nhánh lên GitHub và Mở Pull Request:**
-   - **Base branch:** `main` (hoặc `integration/setup-builder` theo chỉ định của Lead).
+   - **Base branch:** `main`.
    - **Compare branch:** Nhánh tính năng của bạn.
 4. **Bước 4 - Điền thông tin PR theo mẫu:**
    - Tiêu đề PR rõ ràng.
