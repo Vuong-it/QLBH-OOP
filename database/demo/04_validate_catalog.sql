@@ -1,6 +1,10 @@
 -- Read-only verification of the shipped SB60 catalog in a separately named demo database.
 USE [DAVISYS_DEMO_SB60]; SET NOCOUNT ON;
 IF DB_NAME() NOT LIKE N'DAVISYS[_]DEMO[_]%' THROW 51400,N'Chỉ kiểm tra database demo riêng.',1;
+-- A preview RETURN leaves temp tables alive in this SSMS session. Reset all three before rebuilding.
+DROP TABLE IF EXISTS #DemoProducts;
+DROP TABLE IF EXISTS #DemoCategories;
+DROP TABLE IF EXISTS #DemoBrands;
 CREATE TABLE #DemoBrands(MAHANG nvarchar(10) PRIMARY KEY,TENHANG nvarchar(50) NOT NULL);
 INSERT #DemoBrands VALUES (N'B01',N'AMAZON BASICS'),(N'B02',N'ANKER'),(N'B03',N'AXUMTEK'),(N'B04',N'CREATIVE'),(N'B05',N'DAREU'),(N'B06',N'DEEPCOOL'),(N'B07',N'DEPSTECH'),(N'B08',N'FIFINE'),(N'B09',N'FONTASTIC'),(N'B10',N'GENIUS'),(N'B11',N'HAVIT'),(N'B12',N'HP'),(N'B13',N'INIU'),(N'B14',N'INLAND'),(N'B16',N'MANHATTAN'),(N'B17',N'MAONO'),(N'B18',N'MEETION'),(N'B19',N'PLUGABLE'),(N'B20',N'SANDBERG'),(N'B21',N'STARTECH.COM'),(N'B22',N'STEELSERIES'),(N'B23',N'TECKNET'),(N'B24',N'TONOR'),(N'B25',N'UGREEN'),(N'B26',N'VICTSING'),(N'DEMO',N'Chưa xác định (demo)'),(N'LG',N'LOGITECH');
 CREATE TABLE #DemoCategories(MALH nvarchar(10) PRIMARY KEY,TENLH nvarchar(50) NOT NULL);
