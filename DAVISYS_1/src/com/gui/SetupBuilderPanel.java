@@ -15,6 +15,8 @@ import java.awt.Dimension;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.Callable;
@@ -52,6 +54,7 @@ public class SetupBuilderPanel extends JPanel {
         "Tối giản", "Hiện đại", "Năng động", "Sang trọng"});
     private final DefaultListModel<String> categories = new DefaultListModel<>();
     private final JList<String> categoryList = new JList<>(categories);
+    private final Map<String, String> categoryNames = new HashMap<>();
     private final JComboBox<CartContext> customerBox = new JComboBox<>();
     private final JTabbedPane comboTabs = new JTabbedPane();
     private final List<SetupCombo> combos = new ArrayList<>();
@@ -102,6 +105,10 @@ public class SetupBuilderPanel extends JPanel {
         clearCombos();
         runBackground(() -> new Options(service.getProducts(null, null), service.getCarts(username)), options -> {
             categories.clear();
+            categoryNames.clear();
+            for (SetupProduct product : options.products) {
+                categoryNames.put(product.getMaLoai(), product.getTenLoai());
+            }
             options.products.stream().map(SetupProduct::getMaLoai).distinct().sorted().forEach(categories::addElement);
             List<Integer> indices = new ArrayList<>();
             for (int i = 0; i < categories.size(); i++) if (selected.contains(categories.get(i))) indices.add(i);
@@ -152,6 +159,15 @@ public class SetupBuilderPanel extends JPanel {
         criteria.add(first); criteria.add(second); criteria.add(third);
 
         categoryList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        categoryList.setCellRenderer(new DefaultListCellRenderer() {
+            @Override public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean selected, boolean focus) {
+                super.getListCellRendererComponent(list, value, index, selected, focus);
+                String code = (String) value;
+                setText(categoryNames.getOrDefault(code, code));
+                setToolTipText(code);
+                return this;
+            }
+        });
         JPanel groups = new JPanel(new BorderLayout(4, 4));
         groups.add(new JLabel("Nhóm sản phẩm (Ctrl để chọn nhiều):"), BorderLayout.NORTH);
         groups.add(new JScrollPane(categoryList), BorderLayout.CENTER);
