@@ -411,13 +411,14 @@ public class Home extends javax.swing.JFrame implements Runnable, ThreadFactory 
     private void showSetupBuilder() {
         if (setupBuilderPanel == null) {
             setupBuilderPanel = new SetupBuilderPanel(new com.service.SetupBuilderFacade(),
-                    new SetupCartDAO(), ktTenDN, this::refreshSetupCartView);
+                    ktTenDN, this::refreshSetupCartView);
             cardTrangChu.add(setupBuilderPanel, "smartSetup");
         }
         chooserMainPage = false;
         hidePage();
         hideMenu();
         ((java.awt.CardLayout) cardTrangChu.getLayout()).show(cardTrangChu, "smartSetup");
+        setupBuilderPanel.setDarkMode(darkMode);
         setupBuilderPanel.refreshOptions();
         chose = 9;
     }
@@ -12874,6 +12875,7 @@ public class Home extends javax.swing.JFrame implements Runnable, ThreadFactory 
             darkMode();
             darkMode = true;
         }
+        if (setupBuilderPanel != null) setupBuilderPanel.setDarkMode(darkMode);
     }
     private void rdoLightmodeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rdoLightmodeActionPerformed
         rdoLightmode.setSelected(true);
