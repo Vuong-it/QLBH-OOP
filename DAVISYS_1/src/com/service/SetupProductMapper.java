@@ -13,7 +13,7 @@ public final class SetupProductMapper {
             throw new IllegalArgumentException("Dữ liệu lọc sản phẩm không hợp lệ.");
         }
         int score = row.getMucDich() == null ? 1 : Math.max(1, (row.getDiemPhuHop() + 10) / 20);
-        return new SetupProduct(row.getMaSP(), row.getTenSP(), row.getMaLH(),
+        return new SetupProduct(row.getMaSP(), row.getTenSP(), row.getMaLH(), row.getTenLH(),
                 SetupMoney.fromDatabase(row.getGiaBan()), row.getSoLuong(), score,
                 row.getLyDo() + " " + row.getLyDoPhongCach());
     }

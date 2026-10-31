@@ -8,6 +8,7 @@ public final class SetupProduct {
     private final String maSP;
     private final String tenSP;
     private final String maLoai;
+    private final String tenLoai;
     private final long giaBan;
     private final int soLuong;
     private final int diemPhuHop;
@@ -15,9 +16,15 @@ public final class SetupProduct {
 
     public SetupProduct(String maSP, String tenSP, String maLoai,
                         long giaBan, int soLuong, int diemPhuHop, String lyDo) {
+        this(maSP, tenSP, maLoai, maLoai, giaBan, soLuong, diemPhuHop, lyDo);
+    }
+
+    public SetupProduct(String maSP, String tenSP, String maLoai, String tenLoai,
+                        long giaBan, int soLuong, int diemPhuHop, String lyDo) {
         this.maSP = Objects.requireNonNull(maSP, "maSP").trim();
         this.tenSP = Objects.requireNonNull(tenSP, "tenSP").trim();
         this.maLoai = Objects.requireNonNull(maLoai, "maLoai").trim().toUpperCase(Locale.ROOT);
+        this.tenLoai = tenLoai == null || tenLoai.isBlank() ? this.maLoai : tenLoai.trim();
         if (this.maSP.isEmpty() || this.tenSP.isEmpty() || this.maLoai.isEmpty()) {
             throw new IllegalArgumentException("Ma san pham, ten san pham va ma loai khong duoc rong");
         }
@@ -33,6 +40,7 @@ public final class SetupProduct {
     public String getMaSP() { return maSP; }
     public String getTenSP() { return tenSP; }
     public String getMaLoai() { return maLoai; }
+    public String getTenLoai() { return tenLoai; }
     public long getGiaBan() { return giaBan; }
     public int getSoLuong() { return soLuong; }
     public int getDiemPhuHop() { return diemPhuHop; }
