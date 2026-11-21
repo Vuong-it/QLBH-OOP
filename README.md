@@ -34,7 +34,7 @@ Nhằm giải quyết bài toán khách hàng muốn mua trọn bộ góc làm v
 - **Lọc đa tiêu chí:**
   - *Mục đích sử dụng:* Học tập, Văn phòng, Gaming, Thiết kế đồ họa, Làm việc đa nhiệm (ngưỡng điểm phù hợp $\ge 70/100$).
   - *Phong cách thẩm mỹ:* Tối giản, Hiện đại, Năng động, Sang trọng.
-  - *Nhóm sản phẩm đa chọn:* Bàn phím (`BP`), Chuột (`CH`), Tai nghe (`TN`), Lót chuột (`LC`), Giá đỡ laptop (`GD`), Đế tản nhiệt (`DTN`), Webcam (`WC`), Micro (`MC`), Loa (`LOA`), Hub chuyển đổi (`HUB`), Đèn bàn (`DB`), Sạc dự phòng (`SDP`).
+  - *Nhóm sản phẩm đa chọn:* Bàn phím (`BP`), Chuột (`CH`), Tai nghe (`TN`), Lót chuột (`LC`), Giá đỡ laptop (`GD`), Đế tản nhiệt (`DTN`), Webcam (`WC`), Micro (`MC`), Loa (`LOA`), Hub chuyển đổi (`HUB`), Đèn bàn (`DB`), Sạc dự phòng (`SDP`), cùng 3 nhóm mở rộng Laptop (`LAP`), Màn hình (`MH`), Máy tính để bàn (`PC`).
 - **Gợi ý tối đa 3 phương án Combo khác nhau (Strategy Pattern):**
   - **Tiết kiệm (`BudgetStrategy`):** Ưu tiên tổng chi phí thấp nhất.
   - **Cân bằng (`BalancedStrategy`):** Kết hợp hài hòa giữa độ phù hợp ($70\%$) và tỉ lệ tiết kiệm ngân sách ($30\%$).
@@ -52,8 +52,8 @@ Dự án được phát triển theo quy trình phân nhánh Git (`feature/*` $\
 | :--- | :--- | :--- | :--- | :--- |
 | **Vương** *(Project Lead)* | [@Vuong-it](https://github.com/Vuong-it) | `feature/setup-integration`<br>`integration/setup-builder` | - Thiết kế kiến trúc tổng thể & **Facade Pattern**<br>- Xây dựng giao dịch giỏ hàng (`SetupCartDAO`) và thanh toán nguyên tử (`CheckoutDAO`)<br>- Chuẩn hóa tiền tệ `SetupMoney`, ánh xạ `SetupProductMapper`<br>- Nhúng `SetupBuilderPanel` vào `Home.java`, điều phối review & tích hợp PR | `com.service.SetupBuilderFacade`<br>`com.service.SetupMoney`<br>`com.service.SetupProductMapper`<br>`com.dao.SetupCartDAO`<br>`com.dao.CheckoutDAO`<br>`com.gui.Home`<br>`test/com/dao/SetupCartDAOTest.java`<br>`test/com/dao/SetupSqlServerIntegrationTest.java` |
 | **Việt** | [@TongViet1701](https://github.com/TongViet1701) | `feature/setup-algorithm` | - Thiết kế mô hình **OOP cốt lõi** và đảm bảo tính bất biến (**Immutability**)<br>- Xây dựng **Strategy Pattern** với 3 chiến lược xếp hạng combo<br>- Thuật toán **Backtracking** kết hợp cắt nhánh (Pruning) theo ngân sách và đổi phụ kiện cùng loại<br>- Xây dựng bộ Unit Test kiểm thử giải thuật & biên tiền tệ | `com.entity.SetupProduct`<br>`com.entity.SetupCombo`<br>`com.strategy.ComboStrategy`<br>`com.strategy.BudgetStrategy`<br>`com.strategy.BalancedStrategy`<br>`com.strategy.PerformanceStrategy`<br>`com.service.SetupBuilderService`<br>`test/com/service/*` |
-| **Tuấn** | [@Deptraikemetao](https://github.com/Deptraikemetao) | `feature/giao-dien` | - Thiết kế giao diện người dùng **Swing (`SetupBuilderPanel`)**<br>- Xây dựng bộ lọc ngân sách, mục đích, phong cách, danh sách đa chọn nhóm phụ kiện<br>- Bảng hiển thị chi tiết combo, hộp thoại đổi phụ kiện trực quan<br>- Xử lý bất đồng bộ với `SwingWorker` (không chặn luồng EDT) | `com.gui.SetupBuilderPanel`<br>`test/com/gui/SetupBuilderPanelTest.java` |
-| **Phong** | [@nguyenthephongntp2709-sys](https://github.com/nguyenthephongntp2709-sys) | `feature/setup-database`<br>`feature/phong-database-main` | - Thiết kế truy vấn CSDL & bộ phân tích **Regex Metadata** từ cột `SANPHAM.MOTA`<br>- Xây dựng `SetupFilterDAO` và thực thể `SetupFilterProduct`<br>- Viết script Migration mở rộng cột `MOTA` an toàn (idempotent)<br>- Chuẩn bị bộ dữ liệu chuẩn 60 sản phẩm (`SB0001`–`SB0060`) kèm 60 ảnh minh họa | `com.dao.SetupFilterDAO`<br>`com.entity.SetupFilterProduct`<br>`database/migrations/*`<br>`database/demo/*`<br>`test/com/dao/SetupFilterDAOTest.java`<br>`test/com/dao/DescriptionFilterTest.java`<br>`test/com/dao/DemoCatalogTest.java` |
+| **Tuấn** | [@Deptraikemetao](https://github.com/Deptraikemetao) | `feature/giao-dien` | - Thiết kế giao diện người dùng **Swing (`SetupBuilderPanel`)** & đồng bộ Light/Dark mode<br>- Xây dựng bộ lọc ngân sách, mục đích, phong cách, danh sách đa chọn nhóm phụ kiện<br>- Bảng hiển thị chi tiết combo, hộp thoại đổi phụ kiện trực quan & tài liệu/slide UI/UX<br>- Xử lý bất đồng bộ với `SwingWorker` (không chặn luồng EDT) | `com.gui.SetupBuilderPanel`<br>`test/com/gui/SetupBuilderPanelTest.java`<br>`test/com/gui/SetupBuilderEvidence.java`<br>`docs/tuan/*` |
+| **Phong** | [@nguyenthephongntp2709-sys](https://github.com/nguyenthephongntp2709-sys) | `feature/setup-database`<br>`feature/phong-database-main` | - Thiết kế truy vấn CSDL & bộ phân tích **Regex Metadata** từ cột `SANPHAM.MOTA`<br>- Xây dựng `SetupFilterDAO` và thực thể `SetupFilterProduct`<br>- Viết script Migration mở rộng cột `MOTA` an toàn (idempotent)<br>- Chuẩn bị bộ dữ liệu demo 60 phụ kiện (`SB0001`–`SB0060`) & gói mở rộng 10 máy tính/màn hình (`SB0061`–`SB0070`) kèm 70 ảnh PNG | `com.dao.SetupFilterDAO`<br>`com.entity.SetupFilterProduct`<br>`database/migrations/*`<br>`database/demo/*`<br>`test/com/dao/SetupFilterDAOTest.java`<br>`test/com/dao/DescriptionFilterTest.java`<br>`test/com/dao/DemoCatalogTest.java`<br>`test/com/dao/PremiumCatalogTest.java` |
 
 ---
 
@@ -108,21 +108,24 @@ QLBH-OOP/
 │   │   ├── gui/                      # Giao diện người dùng (Login, Home, SetupBuilderPanel, HoaDon,...)
 │   │   ├── swing/ & ui/              # Custom Swing components & Drawer menu
 │   │   ├── utils/                    # Tiện ích hệ thống (JdbcHelper, Auth, MsgBox, XDate, XImage)
-│   │   └── images/                   # Tài nguyên ảnh sản phẩm (bao gồm SB0001.PNG .. SB0060.PNG)
+│   │   └── images/                   # Tài nguyên ảnh sản phẩm (bao gồm SB0001.PNG .. SB0070.PNG)
 │   └── test/com/                     # Bộ kiểm thử JUnit 4 (Service, DAO, GUI, Entity, FakeSetupDatabase)
 ├── database/
 │   ├── DAVISYS.sql                   # Script CSDL gốc của hệ thống DAVISY
 │   ├── setup_metadata_example.md     # Quy chuẩn định dạng chuỗi metadata trong cột SANPHAM.MOTA
 │   ├── migrations/
 │   │   └── 001_setup_description_capacity.sql  # Migration mở rộng cột MOTA lên NVARCHAR(2000)
-│   └── demo/                         # Gói bàn giao dữ liệu Demo 60 sản phẩm (SB0001 - SB0060)
+│   └── demo/                         # Gói dữ liệu Demo 60 SP baseline (SB0001–SB0060) & 10 SP mở rộng (SB0061–SB0070)
 │       ├── DAVISYS_Demo_Ready.sql    # Script dựng mới CSDL demo độc lập (DAVISYS_DEMO_SB60)
 │       ├── 03_apply_catalog.sql      # Script cập nhật catalog 60 sản phẩm (mặc định preview)
-│       ├── 04_validate_catalog.sql   # Script kiểm tra tính toàn vẹn của gói dữ liệu demo
+│       ├── 04_validate_catalog.sql   # Script kiểm tra tính toàn vẹn của gói 60 sản phẩm baseline
+│       ├── 05_add_premium_products.sql       # Script bổ sung 10 SP LAP/MH/PC (mặc định preview, INSERT-only)
+│       ├── 06_validate_premium_products.sql  # Script kiểm tra tính toàn vẹn 10 SP mở rộng
+│       ├── premium/                  # Tài liệu nguồn hãng, SHA-256 & bảng giá demo SB0061–SB0070
 │       └── README.md                 # Hướng dẫn chi tiết sử dụng gói dữ liệu demo
 ├── library/                          # Toàn bộ thư viện .jar (JDBC, JUnit, ZXing, Apache POI, JFreeChart,...)
-├── scripts/                          # Script PowerShell hỗ trợ tạo DB kiểm thử cô lập
-├── docs/                             # Tài liệu biên bản kiểm chứng SQL & bàn giao
+├── scripts/                          # Script PowerShell hỗ trợ tạo DB kiểm thử cô lập & kiểm tra chạy lặp SSMS
+├── docs/                             # Tài liệu biên bản kiểm chứng SQL, bàn giao & báo cáo/slide UI/UX (docs/tuan/)
 ├── integration-notes.md              # Báo cáo tích hợp hệ thống & kiểm thử tự động
 └── rules.md                          # Quy tắc phát triển, chuẩn code OOP & quy trình Pull Request
 ```
@@ -137,19 +140,20 @@ QLBH-OOP/
 - **Hệ quản trị CSDL:** Microsoft SQL Server (2019 / 2022 / 2025) và SQL Server Management Studio (SSMS).
 
 ### 5.2. Khởi tạo Cơ sở dữ liệu
-Bạn có thể chọn **1 trong 2 cách** dưới đây (khuyến nghị **Cách 1** để trải nghiệm đầy đủ 60 sản phẩm của Smart Setup Builder):
+Bạn có thể chọn **1 trong 2 cách** dưới đây (khuyến nghị **Cách 1** để trải nghiệm đầy đủ Smart Setup Builder):
 
-#### Cách 1: Dựng CSDL Demo 60 sản phẩm độc lập (Khuyến nghị)
+#### Cách 1: Dựng CSDL Demo độc lập (Khuyến nghị)
 1. Mở **SSMS**, kết nối vào SQL Server của bạn.
 2. Mở file `database/demo/DAVISYS_Demo_Ready.sql` và nhấn **Execute**.
    - Script sẽ tạo một database mới tên là `DAVISYS_DEMO_SB60` (cam kết không ghi đè database `DAVISYS` sẵn có).
    - Tự động tạo đầy đủ bảng, khóa ngoại, 13 Stored Procedures thống kê, 60 sản phẩm (`SB0001`–`SB0060`) thuộc 12 nhóm phụ kiện, cùng tài khoản và giỏ hàng demo.
 3. *(Tùy chọn)* Chạy file `database/demo/04_validate_catalog.sql` để xác nhận trạng thái `PASS` (60 sản phẩm, 12 nhóm, 3 sản phẩm hết hàng để test bộ lọc tồn kho).
+4. *(Tùy chọn – Bổ sung 10 sản phẩm Laptop, Màn hình, PC)* Chạy `database/demo/05_add_premium_products.sql` với `@Apply = 0` để xem trước, sau đó đổi `@Apply = 1` để thêm `SB0061`–`SB0070`, rồi chạy `database/demo/06_validate_premium_products.sql` để xác nhận `PASS`.
 
 #### Cách 2: Sử dụng CSDL DAVISYS gốc và chạy Migration
 1. Chạy `database/DAVISYS.sql` trên SSMS để tạo CSDL `DAVISYS` mặc định.
 2. Chạy tiếp `database/migrations/001_setup_description_capacity.sql` để mở rộng cột `SANPHAM.MOTA` lên `NVARCHAR(2000) NOT NULL`.
-3. Nếu muốn nạp bộ 60 sản phẩm vào DB demo riêng, xem hướng dẫn tại [`database/demo/README.md`](database/demo/README.md).
+3. Nếu muốn nạp bộ 60/70 sản phẩm vào DB demo riêng, xem hướng dẫn tại [`database/demo/README.md`](database/demo/README.md) và [`database/demo/premium/README.md`](database/demo/premium/README.md).
 
 ### 5.3. Cấu hình kết nối & Chạy trên NetBeans IDE
 Ứng dụng hỗ trợ cấu hình kết nối linh hoạt qua **JVM Options** trong `JdbcHelper` mà không cần sửa code hay commit mật khẩu cá nhân:
@@ -175,9 +179,9 @@ Bạn có thể chọn **1 trong 2 cách** dưới đây (khuyến nghị **Các
 **Kịch bản trải nghiệm nhanh Smart Setup Builder:**
 1. Đăng nhập với tài khoản `demo_admin` / `DemoOnly-2026`.
 2. Trên màn hình chính, nhấn nút **Smart Setup Builder** trên thanh tiêu đề hoặc mở từ **Menu Drawer** bên trái.
-3. Nhấn **Tải lại dữ liệu**, giữ phím `Ctrl` chọn các nhóm sản phẩm (ví dụ: `BP` - Bàn phím, `CH` - Chuột, `TN` - Tai nghe).
+3. Nhấn **Tải lại dữ liệu**, giữ phím `Ctrl` chọn các nhóm sản phẩm (ví dụ: `BP` - Bàn phím, `CH` - Chuột, `TN` - Tai nghe; hoặc `LAP` + `MH` / `PC` + `MH` với ngân sách `60000000`–`80000000` nếu đã nạp gói 10 SP mở rộng).
 4. Nhập ngân sách `2000000`, chọn Mục đích **Gaming**, Phong cách **Hiện đại** $\to$ nhấn **Tạo bộ phụ kiện**.
-5. Xem 3 gợi ý combo (**Tiết kiệm**, **Cân bằng**, **Trải nghiệm**), thử chọn 1 dòng sản phẩm và nhấn **Đổi phụ kiện**.
+5. Xem các gợi ý combo (**Tiết kiệm**, **Cân bằng**, **Trải nghiệm**), thử chọn 1 dòng sản phẩm và nhấn **Đổi phụ kiện**.
 6. Chọn giỏ hàng `Khách Demo – 0000000001` $\to$ nhấn **Thêm vào giỏ hàng**, sau đó mở mục **Giỏ hàng** (nhập SĐT `0000000001`) để xác nhận đơn hàng.
 
 ### 6.2. Tài khoản trên CSDL Gốc (`DAVISYS`)
@@ -200,12 +204,13 @@ Dự án sở hữu bộ kiểm thử tự động JUnit 4 nằm tại `DAVISYS_
 - `SetupMoneyTest` (9 tests): Kiểm thử biên tiền tệ VNĐ và ánh xạ `SetupProductMapper`.
 - `SetupFilterDAOTest` & `DescriptionFilterTest` (12 tests): Kiểm thử bóc tách Regex metadata tiếng Việt có dấu/không dấu, dữ liệu khuyết hoặc sai định dạng.
 - `DemoCatalogTest` (1 test): Kiểm tra tính toàn vẹn của toàn bộ 60 sản phẩm demo, 60 file ảnh PNG và 300 điểm mục đích trong `products.tsv`.
+- `PremiumCatalogTest` (3 tests): Kiểm tra 10 sản phẩm mở rộng (`SB0061`–`SB0070`), ảnh PNG và kịch bản ghép combo ngân sách cao (`LAP+MH`, `PC+MH`).
 - `SetupCartDAOTest` (10 tests): Kiểm thử giao dịch thêm combo vào giỏ hàng và cơ chế Rollback bằng `FakeSetupDatabase` (in-memory JDBC fixture, không phụ thuộc SQL Server).
-- `SetupBuilderPanelTest` (1 test): Kiểm thử luồng tương tác giao diện trên EDT và `SwingWorker`.
+- `SetupBuilderPanelTest` (7 tests): Kiểm thử luồng tương tác giao diện trên EDT, `SwingWorker`, đổi phụ kiện, xóa kết quả cũ và đồng bộ Light/Dark mode.
 - `HoaDonRegressionTest` (1 test): Kiểm thử hồi quy công thức tính giảm giá và tích điểm hóa đơn.
 - `SetupSqlServerIntegrationTest` (12 tests, *opt-in*): Kiểm thử tích hợp trực tiếp trên SQL Server thật (đồng thời nhiều luồng, khóa dòng, rollback hóa đơn/tồn kho).
 
-**Chạy bộ kiểm thử tiêu chuẩn (60 tests không cần SQL Server) trong NetBeans:**
+**Chạy bộ kiểm thử tiêu chuẩn (69 tests không cần SQL Server) trong NetBeans:**
 - Nhấn chuột phải vào project `DAVISYS_1` $\to$ chọn **Test (Alt + F6)**.
 
 ---
